@@ -60,7 +60,7 @@ os.makedirs(checkpoint_dir+ '/%s'%(model_name), exist_ok=True)
 
 
 initial_checkpoint = './reports/checkpoint/initial_00000100_model.pth'
-LOAD_INITIAL = True
+LOAD_INITIAL = False
 random_seed = int(time.time())
 
 def valid(model, val_generator, criterion, device):
