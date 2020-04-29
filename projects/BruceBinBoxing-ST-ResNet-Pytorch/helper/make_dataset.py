@@ -38,7 +38,7 @@ class make_dataloader(data.Dataset):
 
 
             elif self.mode == 'test':
-                _, _, self.X_data, self.Y_data, mmn, external_dim, timestamp_train, timestamp_test = COVID.load_data(
+                _, _, self.X_data, self.Y_data, mmn, external_dim, timestamp_train, timestamp_test = BikeNYC.load_data(
                     len_closeness=self.len_closeness,
                     len_period=self.len_period,
                     len_trend=self.len_trend,
@@ -53,7 +53,7 @@ class make_dataloader(data.Dataset):
             print("loading data...")
 
             if self.mode == 'train':
-                self.X_data, self.Y_data, _, _, mmn, external_dim, timestamp_train, timestamp_test = BikeNYC.load_data(
+                self.X_data, self.Y_data, _, _, mmn, external_dim, timestamp_train, timestamp_test = COVID.load_data(
                     len_closeness=self.len_closeness,
                     len_period=self.len_period,
                     len_trend=self.len_trend,
@@ -63,7 +63,7 @@ class make_dataloader(data.Dataset):
 
 
             elif self.mode == 'test':
-                _, _, self.X_data, self.Y_data, mmn, external_dim, timestamp_train, timestamp_test = BikeNYC.load_data(
+                _, _, self.X_data, self.Y_data, mmn, external_dim, timestamp_train, timestamp_test = COVID.load_data(
                     len_closeness=self.len_closeness,
                     len_period=self.len_period,
                     len_trend=self.len_trend,
