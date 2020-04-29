@@ -49,7 +49,7 @@ class make_dataloader(data.Dataset):
             assert len(self.X_data[0]) == len(self.Y_data)
             self.data_len = len(self.Y_data)
 
-        elif self.datset_name == "covid":
+        elif self.dataset_name == "covid":
             print("loading data...")
 
             if self.mode == 'train':
