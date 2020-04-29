@@ -49,6 +49,31 @@ class make_dataloader(data.Dataset):
             assert len(self.X_data[0]) == len(self.Y_data)
             self.data_len = len(self.Y_data)
 
+        elif self.datset_name == "covid":
+            print("loading data...")
+
+            if self.mode == 'train':
+                self.X_data, self.Y_data, _, _, mmn, external_dim, timestamp_train, timestamp_test = BikeNYC.load_data(
+                    len_closeness=self.len_closeness,
+                    len_period=self.len_period,
+                    len_trend=self.len_trend,
+                    len_test=len_test,
+                    preprocess_name='preprocessing.pkl',
+                    meta_data=True)
+
+
+            elif self.mode == 'test':
+                _, _, self.X_data, self.Y_data, mmn, external_dim, timestamp_train, timestamp_test = BikeNYC.load_data(
+                    len_closeness=self.len_closeness,
+                    len_period=self.len_period,
+                    len_trend=self.len_trend,
+                    len_test=len_test,
+                    preprocess_name='preprocessing.pkl',
+                    meta_data=True)
+
+            assert len(self.X_data[0]) == len(self.Y_data)
+            self.data_len = len(self.Y_data)
+
         else:
             print('Unknown datasets')
 
