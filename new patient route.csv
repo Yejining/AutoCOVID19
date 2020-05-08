@@ -1,8 +1,8 @@
 id,date,day,contact,purpose,lat,lon,age,sex,infection_case
 9610,2020-03-24,2,1,work,37.496133,127.013684,50s,male,contact with patient
-9610,2020-03-24,2,1,work,37.496133,127.013684,50s,male,contact with patient
-9610,2020-03-24,2,1,work,37.496133,127.013684,50s,male,contact with patient
-9610,2020-03-24,2,1,work,37.496133,127.013684,50s,male,contact with patient
+9610,2020-03-25,3,1,work,37.496133,127.013684,50s,male,contact with patient
+9610,2020-03-26,4,1,work,37.496133,127.013684,50s,male,contact with patient
+9610,2020-03-27,5,1,work,37.496133,127.013684,50s,male,contact with patient
 9652,2020-03-23,1,1,public_transportation,37.4766,126.9816,50s,female,contact with patient
 9652,2020-03-23,1,1,restaurant,37.51735,126.865227,50s,female,contact with patient
 9652,2020-03-23,1,1,cafe,37.51735,126.865227,50s,female,contact with patient
