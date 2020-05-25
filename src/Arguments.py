@@ -19,7 +19,7 @@ class PathInfo:
     statistics_path = 'statistics/'
 
     def __init__(self, index=0, appendix=None):
-        self.name = '../covid_datatset/{}th'.format(str(index))
+        self.name = 'covid_dataset/{}/'.format(str(index))
         if appendix is not None: self.name += '_{}/'.format(appendix)
 
     def get_route_saving_path(self):

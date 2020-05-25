@@ -72,6 +72,7 @@ class RouteToIndexConverter:
             self.indices_save_image(date_path, days[1])
 
     def save_raw_patient_route(self, path, patient):
+        print("saving raw patient route: ", patient)
         patient_places = self.route_info.get_places(patient)
 
         patient_path = path + str(patient)
@@ -79,10 +80,12 @@ class RouteToIndexConverter:
 
         today = self.route_info.first_day
         while True:
+            print(today, end=' ')
             today_str = datetime.strftime(today, "%Y-%m-%d")
             patient_day_places = patient_places[patient_places['date'] == today_str]
             places_indices = self.combine_places(patient_day_places)
-            patient_date_path = patient_path + "/" + today_str + '/'
+            patient_date_path = patient_path + "/" + today_str + "/"
+            print(patient_date_path)
             Path(patient_date_path).mkdir(parents=True, exist_ok=True)
             self.indices_save_image(patient_date_path, places_indices)
             if today == self.route_info.last_day: break
@@ -104,7 +107,7 @@ class RouteToIndexConverter:
         return indices
 
     def indices_save_image(self, path, place_indices):
-        all_counts = self.feature_info.get_all_counts
+        all_counts = self.feature_info.get_all_counts()
         size = self.image_info.size
         weight = self.image_info.weight
 
@@ -129,7 +132,7 @@ class RouteToIndexConverter:
         if p_sex != -1: p_sex += index
         index += self.feature_info.counts[1]
 
-        p_infection_case = self.feature_info.infection_case_category(one_visit['infection_case'], self.feature_info.causes)
+        p_infection_case = self.feature_info.infection_case_category(one_visit['infection_case'])
         if p_infection_case != -1: p_infection_case += index
         index += self.feature_info.counts[2]
 

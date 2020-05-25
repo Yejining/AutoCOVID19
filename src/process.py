@@ -37,9 +37,17 @@ class Process:
 
     # save raw csv file into images
     def save_raw_route(self):
+        print("saving original route")
         self.converter.convert_original_route()
+        print()
+
+        print("saving accumulated route")
         self.converter.convert_accumulated_route()
+        print()
+
+        print("saving complete route")
         self.converter.convert_complete_route()
+        print()
 
     # save image in h5 format
     def save_route_in_h5(self):
