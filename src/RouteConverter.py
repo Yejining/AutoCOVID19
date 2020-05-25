@@ -235,6 +235,7 @@ class RouteToIndexConverter:
         return complete_routes
 
     def get_dataset(self):
+        print("get_dataset")
         complete_routes = self.get_complete_routes()
         kernel_size = self.image_info.kernel_size
         size = self.image_info.size
@@ -243,13 +244,29 @@ class RouteToIndexConverter:
         for i, days in enumerate(complete_routes):
             self.get_array_image(days, dataset[i, :, :, :])
 
-        return dataset
+        n = dataset.shape[0]
+        X_set = []
+        y_set_temp = []
+        for i in range(self.model_info.n_step, n):
+            X_set.append(dataset[i - self.model_info.n_step:i, :, :, :])
+            y_set_temp.append(dataset[i:i + 1, :, :, :])
+
+        index_range = self.feature_info.get_y_set_index()
+        y_set = np.zeros((y_set_temp.shape[0], size, size))
+        for i in range(len(y_set_temp)):
+            for j in range(index_range):
+                y_set[i] += y_set_temp[i, j, :, :]
+
+        print(X_set.shape, y_set.shape)
+
+        return X_set, y_set
 
     def get_array_image(self, place_indices, data_array):
         for index in place_indices[1]:
             row = index[5]
             col = index[6]
             for feature in range(5):
+                if feature == -1: continue
                 data_array[index[feature]][row][col] += self.image_info.weight
 
         for channel in range(data_array.shape[0]):

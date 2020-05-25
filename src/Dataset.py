@@ -6,30 +6,17 @@ import h5py
 
 
 class Dataset:
-    def __init__(self, dataset, route_info, model_info):
-        self.dataset = dataset
+    def __init__(self, X_set, y_set, route_info, model_info):
+        self.X_set = X_set
+        self.y_set = y_set
         self.route_info = route_info
         self.model_info = model_info
 
     def save_dataset(self, path, first_day):
-        X_set, y_set = self.divide_dataset()
-
         with h5py.File(path, 'w') as f:
-            set_X = f.create_dataset('X_set', data=X_set)
-            set_y = f.create_dataset('y_set', data=y_set)
+            set_X = f.create_dataset('X_set', data=self.X_set)
+            set_y = f.create_dataset('y_set', data=self.y_set)
             set_day = f.create_dataset('start_day', data=np.array(first_day))
-
-    def divide_dataset(self):
-        n = self.dataset.shape[0]
-
-        X_set = []
-        y_set = []
-        for i in range(self.model_info.n_step, n):
-            X_set.append(self.dataset[i - self.model_info.n_step:i, :, :])
-            y_set.append(self.dataset[i:i + 1, :, :])
-        X_set, y_set = np.array(X_set), np.array(y_set)
-
-        return X_set, y_set
 
     def load_data_from_file(self, path):
         sample_num = self.route_info.duration - (2 * self.model_info.n_step)

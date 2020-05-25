@@ -51,8 +51,8 @@ class Process:
 
     # save image in h5 format
     def save_route_in_h5(self):
-        self.dataset = self.converter.get_dataset()
-        self.loader = Dataset(self.dataset, self.route_info, self.model_info)
+        self.X_set, self.y_set = self.converter.get_dataset()
+        self.loader = Dataset(self.X_set, self.y_set, self.route_info, self.model_info)
         self.loader.save_dataset(self.path_info.get_dataset_path(), self.route_info.first_day)
 
     # get dataset(images) from file

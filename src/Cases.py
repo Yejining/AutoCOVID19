@@ -37,6 +37,11 @@ class Index:
         day = datetime.strptime(day, "%Y-%m-%d")
         return day.weekday()
 
+    def get_y_set_index(self):
+        for count in self.counts:
+            if count != 0:
+                return count
+
 
 class Index2(Index):
     def __init__(self):
