@@ -8,11 +8,13 @@ def main(index):
     # process.save_raw_route()
     # process.save_route_in_h5()
     process.load_dataset()
+    print("start train")
     process.train()
+    print("start predicting")
     process.predict()
     process.save_prediction()
-    process.save_readme()
-    process.statistic_raw_data()
+    # process.save_readme()
+    # process.statistic_raw_data()
 
 
 if __name__ == "__main__":

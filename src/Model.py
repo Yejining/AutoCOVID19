@@ -3,12 +3,15 @@ from pathlib import Path
 
 from keras.layers import AveragePooling3D
 from keras.models import Sequential, load_model
-from keras.layers.convolutional import Conv3D
+from keras.layers.convolutional import Conv3D, Conv1D, Conv2D
 from keras.layers.convolutional_recurrent import ConvLSTM2D
 from keras.layers.normalization import BatchNormalization
+from sklearn.metrics import mean_squared_error
+from math import sqrt
 import keras.backend.tensorflow_backend as K
 import tensorflow as tf
 import keras.backend.tensorflow_backend as tfback
+import numpy as np
 
 
 class Model:
@@ -27,28 +30,26 @@ class Model:
 
         with K.tf_ops.device('/GPU:0'):
             seq = Sequential()
-            seq.add(ConvLSTM2D(filters=channel, kernel_size=(3, 3), data_format='channels_first',
+            seq.add(ConvLSTM2D(filters=1, kernel_size=(3, 3), data_format='channels_first',
                                input_shape=(n_step, channel, size, size),
                                padding='same', return_sequences=True))
             seq.add(BatchNormalization())
 
-            seq.add(ConvLSTM2D(filters=channel, kernel_size=(3, 3), data_format='channels_first',
+            seq.add(ConvLSTM2D(filters=1, kernel_size=(3, 3), data_format='channels_first',
                                padding='same', return_sequences=True))
             seq.add(BatchNormalization())
 
-            seq.add(ConvLSTM2D(filters=channel, kernel_size=(3, 3), data_format='channels_first',
+            seq.add(ConvLSTM2D(filters=1, kernel_size=(3, 3), data_format='channels_first',
                                padding='same', return_sequences=True))
             seq.add(BatchNormalization())
 
-            seq.add(ConvLSTM2D(filters=channel, kernel_size=(3, 3), data_format='channels_first',
+            seq.add(ConvLSTM2D(filters=1, kernel_size=(3, 3), data_format='channels_first',
                                padding='same', return_sequences=True))
             seq.add(BatchNormalization())
 
             seq.add(Conv3D(filters=1, kernel_size=(3, 3, 3),
                            activation=activation,
                            padding='same', data_format='channels_first'))
-
-            seq.add(AveragePooling3D(pool_size=(channel, 1, 1), padding='same'))
 
             seq.compile(optimizer=optimizer, loss=loss)
 
@@ -62,4 +63,28 @@ class Model:
 
         seq = self.get_model(size)
         seq.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, shuffle='batch')
-        seq.save(self.path_info.get_model_path)
+        seq.save(self.path_info.get_model_path())
+
+    def get_accuracy(self, pred, y_test):
+        diff = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
+        rmse = np.zeros((pred.shape[0], pred.shape[2]))
+        mape = np.zeros((pred.shape[0], pred.shape[2]))
+        test_max_value = np.zeros((pred.shape[0], pred.shape[2]))
+        pred_max_value = np.zeros((pred.shape[0], pred.shape[2]))
+
+        for i in range(pred.shape[0]):  # days
+            for j in range(pred.shape[2]):  # features
+                pred_diff = pred[i][0][j]
+                y_test_diff = y_test[i][0][j]
+                diff[i, j, :, :] = 255 - np.abs(y_test_diff - pred_diff)
+
+                pred_diff[pred_diff >= 0] += 1
+                y_test_diff[y_test_diff >= 0] += 1
+
+                rmse[i][j] = sqrt(mean_squared_error(y_test_diff, pred_diff))
+                test_max_value[i][j] = np.amax(y_test[i][0][j]) + 1
+                pred_max_value[i][j] = np.amax(pred[i][0][j]) + 1
+                mape[i][j] = np.mean(np.abs((y_test_diff - pred_diff) / y_test_diff))
+
+        return diff, rmse, mape, test_max_value, pred_max_value
+

@@ -2,6 +2,7 @@ import csv
 
 from keras.models import load_model
 import tensorflow as tf
+from pathlib import Path
 
 from src.Arguments import PathInfo, RouteInfo, ImageInfo, ModelInfo, GeneralInfo
 from src.Dataset import Dataset
@@ -18,11 +19,11 @@ class Process:
         self.route_info = RouteInfo()
         self.image_info = ImageInfo()
         self.feature_info = feature_info
-        self.model_info = ModelInfo(self.feature_info.get_all_counts)
+        self.model_info = ModelInfo(self.feature_info.get_all_counts())
         self.general_info = GeneralInfo()
         self.converter = RouteToIndexConverter(
             self.path_info, self.route_info, self.image_info, self.feature_info, self.model_info)
-        self.loader = None
+        self.loader = Dataset(self.route_info, self.model_info)
         self.trainer = None
 
         self.dataset = None
@@ -52,8 +53,7 @@ class Process:
     # save image in h5 format
     def save_route_in_h5(self):
         self.X_set, self.y_set = self.converter.get_dataset()
-        self.loader = Dataset(self.X_set, self.y_set, self.route_info, self.model_info)
-        self.loader.save_dataset(self.path_info.get_dataset_path(), self.route_info.first_day)
+        self.loader.save_dataset(self.path_info.get_dataset_path(), self.X_set, self.y_set, self.route_info.first_day)
 
     # get dataset(images) from file
     def load_dataset(self):
@@ -68,9 +68,13 @@ class Process:
     def predict(self):
         self.model = load_model(self.path_info.get_model_path())
         self.pred = self.model.predict(self.X_test)
+        self.diff, self.rmse, self.mape, self.test_max_value, self.pred_max_value =\
+            self.trainer.get_accuracy(self.pred, self.y_test)
 
     def save_prediction(self):
-        self.converter.save_prediction_image(self.X_test, self.y_test, self.pred, self.start_day2)
+        print(self.X_test.shape, self.y_test.shape, self.pred.shape)
+        self.converter.save_prediction_image(self.X_test, self.y_test, self.pred, self.start_day2,
+                                             self.diff, self.rmse, self.mape, self.test_max_value, self.pred_max_value)
 
     def save_readme(self):
         self.general_info.save_readme(
@@ -80,6 +84,7 @@ class Process:
         raw_routes_combined = self.converter.statistic_by_day()
         accumulated_routes_combined = self.converter.statistic_by_day(raw=False)
 
+        Path(self.path_info.get_statistics_path()).mkdir(parents=True, exist_ok=True)
         with open(self.path_info.get_statistics_path() + "raw_route.csv", "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerows(raw_routes_combined)

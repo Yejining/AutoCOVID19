@@ -6,20 +6,18 @@ import h5py
 
 
 class Dataset:
-    def __init__(self, X_set, y_set, route_info, model_info):
-        self.X_set = X_set
-        self.y_set = y_set
+    def __init__(self,route_info, model_info):
         self.route_info = route_info
         self.model_info = model_info
 
-    def save_dataset(self, path, first_day):
+    def save_dataset(self, path, X_set, y_set, first_day):
         print("save_dataset")
         day = [first_day.year, first_day.month, first_day.day]
-        print(type(self.X_set), type(self.y_set), type(day))
+        print(type(X_set), type(y_set), type(day))
 
         with h5py.File(path, 'w') as f:
-            set_X = f.create_dataset('X_set', data=self.X_set)
-            set_y = f.create_dataset('y_set', data=self.y_set)
+            set_X = f.create_dataset('X_set', data=X_set)
+            set_y = f.create_dataset('y_set', data=y_set)
             set_day = f.create_dataset('start_day', data=day)
 
     def load_data_from_file(self, path):
@@ -30,6 +28,7 @@ class Dataset:
         return X_train, y_train, X_test, y_test, start_day1, start_day2
 
     def load_data(self, path, n_train):
+        print("data load path: ", path)
         X_train = HDF5Matrix(path, 'X_set', start=0, end=n_train)
         y_train = HDF5Matrix(path, 'y_set', start=0, end=n_train)
         X_test = HDF5Matrix(path, 'X_set', start=n_train)

@@ -17,6 +17,8 @@ class PathInfo:
     readme_path = 'README.md'
     scaled_path = 'scaled/'
     statistics_path = 'statistics/'
+    diff_path = 'diff/'
+    diff_name = 'accuracy.csv'
 
     def __init__(self, index=0, appendix=None):
         self.name = 'covid_dataset/{}/'.format(str(index))
@@ -54,6 +56,12 @@ class PathInfo:
 
     def get_statistics_path(self):
         return self.name + self.statistics_path
+
+    def get_diff_path(self):
+        return self.name + self.pred_path + self.diff_path
+
+    def get_diff_name(self):
+        return self.get_diff_path() + self.diff_name
 
 
 class RouteInfo:

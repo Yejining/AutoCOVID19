@@ -1,6 +1,9 @@
+import csv
 import math
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
+from csv import writer
 import numpy as np
 from PIL import Image
 
@@ -260,10 +263,10 @@ class RouteToIndexConverter:
         print("combine features in y_set_temp")
         index_range = self.feature_info.get_y_set_index()
         print("going to combine %d features" % index_range)
-        y_set = np.zeros((y_set_temp.shape[0], size, size))
+        y_set = np.zeros((y_set_temp.shape[0], 1, 1, size, size))
         for i in range(len(y_set_temp)):
             for j in range(index_range):
-                y_set[i] += y_set_temp[i, 0, j, :, :]
+                y_set[i][0][0] += y_set_temp[i, 0, j, :, :]
 
         print(X_set.shape, y_set.shape)
 
@@ -282,7 +285,7 @@ class RouteToIndexConverter:
 
         return data_array
 
-    def save_prediction_image(self, X_test, y_test, pred, start_day):
+    def save_prediction_image(self, X_test, y_test, pred, start_day, diff, rmse, mape, test_max_value, pred_max_value):
         # X_test
         first_day = start_day
         for sample in range(X_test.shape[0]):
@@ -305,14 +308,43 @@ class RouteToIndexConverter:
 
         # pred
         first_day = first_day + timedelta(days=3)
+        self.create_diff_file(self.path_info.get_diff_path(), self.path_info.diff_name)
         for l_sample in range(pred.shape[0]):
-            sample_path = self.path_info.get_y_pred_path + datetime.strftime(first_day, "%Y-%m-%d") + '/'
+            sample_path = self.path_info.get_y_pred_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
             Path(sample_path).mkdir(parents=True, exist_ok=True)
             self.array_save_image(sample_path, pred[l_sample][0])
 
             sample_path = self.path_info.get_y_scaled_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
+            Path(sample_path).mkdir(parents=True, exist_ok=True)
             self.array_save_image(sample_path, pred[l_sample][0], scaled=True)
             first_day += timedelta(days=1)
+
+            # diff
+            l_first_day = first_day + timedelta(days=3)
+            for l_sample in range(diff.shape[0]):
+                sample_path = self.path_info.get_diff_path() + datetime.strftime(l_first_day, "%Y-%m-%d") + '/'
+                Path(sample_path).mkdir(parents=True, exist_ok=True)
+                self.array_save_image(sample_path, diff[l_sample])
+
+                for l_feature in range(diff.shape[1]):
+                    self.append_list_as_row(self.path_info.get_diff_name(),
+                                       [datetime.strftime(l_first_day, "%Y-%m-%d"), l_feature,
+                                        mape[l_sample][l_feature], rmse[l_sample][l_feature],
+                                        test_max_value[l_sample][l_feature], pred_max_value[l_sample][l_feature]])
+                l_first_day += timedelta(days=1)
+
+    def create_diff_file(self, file_path, file_name):
+        Path(file_path).mkdir(parents=True, exist_ok=True)
+        with open(file_path + file_name, 'w') as csvfile:
+            headers = ['date', 'feature', 'mape', 'rmse', 'mase', 'max']
+            writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n', fieldnames=headers)
+            writer.writeheader()
+
+    def append_list_as_row(self, file_name, list_of_elem):
+        print(list_of_elem[4])
+        with open(file_name, 'a+', newline='') as write_obj:
+            csv_writer = writer(write_obj)
+            csv_writer.writerow(list_of_elem)
 
     def array_save_image(self, path, array, scaled=False):
         for channel in range(array.shape[0]):
@@ -321,4 +353,4 @@ class RouteToIndexConverter:
                 new_array[new_array >= 0] *= 255
                 self.save_grid(path + str(channel) + ".png", new_array, kernel=False)
             else:
-                self.save_grid(path + str(channel) + ".png", array, kernel=False)
+                self.save_grid(path + str(channel) + ".png", array[channel], kernel=False)
