@@ -16,6 +16,7 @@ class PathInfo:
     y_pred_path = 'pred/'
     readme_path = 'README.md'
     scaled_path = 'scaled/'
+    statistics_path = 'statistics/'
 
     def __init__(self, index=0, appendix=None):
         self.name = '../covid_datatset/{}th'.format(str(index))
@@ -51,11 +52,14 @@ class PathInfo:
     def get_y_scaled_path(self):
         return self.name + self.pred_path + self.scaled_path
 
+    def get_statistics_path(self):
+        return self.name + self.statistics_path
+
 
 class RouteInfo:
     def __init__(self, route_path=None):
         if route_path is not None: self.routes = pd.read_csv(route_path)
-        else: self.routes = pd.read_csv('../covid_dataset/raw/MergedRoute.csv')
+        else: self.routes = pd.read_csv('covid_dataset/raw/MergedRoute.csv')
 
         self.dates = self.unique_value(self.routes, 'date')
         self.patients = self.unique_value(self.routes, 'patient_id')

@@ -40,6 +40,45 @@ class RouteToIndexConverter:
         for patient in self.route_info.patients:
             self.save_raw_patient_route(path, patient)
 
+    def initialize_combined_route(self):
+        today = self.route_info.first_day
+        combined_route = []
+        while True:
+            features = [0] * (self.feature_info.get_all_counts() + 1)
+            features[0] = datetime.strftime(today, "%Y-%m-%d")
+            combined_route.append(features)
+
+            if today == self.route_info.last_day: break
+            today += timedelta(days=1)
+
+        return combined_route
+
+    def statistic_by_day(self, raw=True):
+        routes_combined = self.initialize_combined_route()
+
+        for patient in self.route_info.patients:
+            if raw: routes = self.get_patient_route(patient)
+            else: routes = self.accumulate_patient(patient)
+
+            for each_route in routes:
+                route_day = datetime.strptime(each_route[0], "%Y-%m-%d")
+                route_places = each_route[1]
+                index = (route_day - self.route_info.first_day).days
+                if len(route_places) == 0: continue
+                for each_place in route_places:
+                    age = each_place[0]
+                    sex = each_place[1]
+                    infection = each_place[2]
+                    purpose = each_place[3]
+                    day = each_place[4]
+                    routes_combined[index][age + 1] += 1
+                    routes_combined[index][sex + 1] += 1
+                    routes_combined[index][infection + 1] += 1
+                    routes_combined[index][purpose + 1] += 1
+                    routes_combined[index][day + 1] += 1
+
+        return routes_combined
+
     def convert_accumulated_route(self):
         path = self.path_info.get_accumulated_route_saving_path()
         for patient in self.route_info.patients:

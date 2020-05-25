@@ -1,3 +1,5 @@
+import csv
+
 from keras.models import load_model
 import tensorflow as tf
 
@@ -65,6 +67,18 @@ class Process:
     def save_readme(self):
         self.general_info.save_readme(
             self.route_info, self.image_info, self.feature_info, self.model_info, self.path_info)
+
+    def statistic_raw_data(self):
+        raw_routes_combined = self.converter.statistic_by_day()
+        accumulated_routes_combined = self.converter.statistic_by_day(raw=False)
+
+        with open(self.path_info.get_statistics_path() + "raw_route.csv", "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(raw_routes_combined)
+
+        with open(self.path_info.get_statistics_path() + "accumulated_route.csv", "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(accumulated_routes_combined)
 
 
 def main(index):
