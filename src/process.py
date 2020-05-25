@@ -3,21 +3,21 @@ import csv
 from keras.models import load_model
 import tensorflow as tf
 
-from src.Arguments import PathInfo, RouteInfo, ImageInfo, FeatureInfo, ModelInfo, GeneralInfo
+from src.Arguments import PathInfo, RouteInfo, ImageInfo, ModelInfo, GeneralInfo
 from src.Dataset import Dataset
 from src.Model import Model
 from src.RouteConverter import RouteToIndexConverter
 
 
 class Process:
-    def __init__(self, index=10):
-        self.initial_setting(index)
+    def __init__(self, name, feature_info):
+        self.initial_setting(name, feature_info)
 
-    def initial_setting(self, index=10):
-        self.path_info = PathInfo(index)
+    def initial_setting(self, name, feature_info):
+        self.path_info = PathInfo(name)
         self.route_info = RouteInfo()
         self.image_info = ImageInfo()
-        self.feature_info = FeatureInfo()
+        self.feature_info = feature_info
         self.model_info = ModelInfo(self.feature_info.get_all_counts)
         self.general_info = GeneralInfo()
         self.converter = RouteToIndexConverter(

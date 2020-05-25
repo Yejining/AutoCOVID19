@@ -99,28 +99,6 @@ class ImageInfo:
         self.weight = weight
 
 
-class FeatureInfo:
-    def __init__(self, names=None, counts=None, visit_types=None, causes=None):
-        if names is not None: self.names = names
-        else: self.names = ['age', 'sex', 'infection_case', 'type', 'date']
-
-        if counts is not None: self.counts = counts
-        else: self.counts = [11, 2, 4, 21, 7]
-
-        if visit_types is not None: self.visit_type = visit_types
-        else: self.visit_types = ['karaoke', 'gas_station', 'gym', 'bakery', 'pc_cafe',
-                       'beauty_salon', 'school', 'church', 'bank', 'cafe',
-                       'bar', 'post_office', 'real_estate_agency', 'lodging',
-                       'public_transportation', 'restaurant', 'etc', 'store',
-                       'hospital', 'pharmacy', 'airport']
-
-        if causes is not None: self.cause = causes
-        else: self.causes = ['community infection', 'etc', 'contact with patient', 'overseas inflow']
-
-    def get_all_counts(self):
-        return sum(count for count in self.counts)
-
-
 class ModelInfo:
     def __init__(self, channel, split_num=0, n_step=3,
                  epochs=200, batch_size=1,

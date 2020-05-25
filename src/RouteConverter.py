@@ -13,28 +13,6 @@ class RouteToIndexConverter:
         self.feature_info = feature_info
         self.model_info = model_info
 
-    def age_category(self, age):
-        age = int(age[:-1])
-        if age == 0:
-            return 0
-        elif age == 100:
-            return 10
-        return age // 10
-
-    def sex_category(self, sex):
-        if sex == 'male': return 0
-        return 1
-
-    def infection_case_category(self, infection_case, causes):
-        return causes.index(infection_case)
-
-    def type_category(self, visit_type, move_types):
-        return move_types.index(visit_type)
-
-    def day_category(self, day):
-        day = datetime.strptime(day, "%Y-%m-%d")
-        return day.weekday()
-
     def convert_original_route(self):
         path = self.path_info.get_route_saving_path()
         for patient in self.route_info.patients:
@@ -136,6 +114,7 @@ class RouteToIndexConverter:
             row = index[5]
             col = index[6]
             for feature in range(5):
+                if feature == -1: continue
                 visit_grid[index[feature]][row][col] += weight
 
         for channel in range(visit_grid.shape[0]):
@@ -143,15 +122,24 @@ class RouteToIndexConverter:
 
     def df_to_grid_index(self, one_visit):
         index = 0
-        p_age = self.age_category(one_visit['age'])
+        p_age = self.feature_info.age_category(one_visit['age'])
         index += self.feature_info.counts[0]
-        p_sex = self.sex_category(one_visit['sex']) + index
+
+        p_sex = self.feature_info.sex_category(one_visit['sex'])
+        if p_sex != -1: p_sex += index
         index += self.feature_info.counts[1]
-        p_infection_case = self.infection_case_category(one_visit['infection_case'], self.feature_info.causes) + index
+
+        p_infection_case = self.feature_info.infection_case_category(one_visit['infection_case'], self.feature_info.causes)
+        if p_infection_case != -1: p_infection_case += index
         index += self.feature_info.counts[2]
-        p_type = self.type_category(one_visit['type'], self.feature_info.visit_types) + index
+
+        p_type = self.feature_info.type_category(one_visit['type'], self.feature_info.visit_types)
+        if p_type != -1: p_type += index
         index += self.feature_info.counts[3]
-        p_date = self.day_category(one_visit['date']) + index
+
+        p_date = self.feature_info.day_category(one_visit['date'])
+        if p_date != -1: p_date += index
+
         row = one_visit['row']
         col = one_visit['col']
 
