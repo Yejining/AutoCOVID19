@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from keras.layers import AveragePooling3D
 from keras.models import Sequential, load_model
 from keras.layers.convolutional import Conv3D
 from keras.layers.convolutional_recurrent import ConvLSTM2D
@@ -11,10 +12,11 @@ import keras.backend.tensorflow_backend as tfback
 
 
 class Model:
-    def __init__(self, model_info, path_info, route_info):
+    def __init__(self, model_info, path_info, route_info, feature_info):
         self.model_info = model_info
         self.path_info = path_info
         self.route_info = route_info
+        self.feature_info = feature_info
 
     def get_model(self, size):
         channel = self.model_info.channel
@@ -45,6 +47,8 @@ class Model:
             seq.add(Conv3D(filters=1, kernel_size=(3, 3, 3),
                            activation=activation,
                            padding='same', data_format='channels_first'))
+
+            seq.add(AveragePooling3D(pool_size=(channel, 1, 1), padding='same'))
 
             seq.compile(optimizer=optimizer, loss=loss)
 

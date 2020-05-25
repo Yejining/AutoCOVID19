@@ -3,16 +3,16 @@ from src.process import set_gpu, Process
 
 
 def main(index):
-    # set_gpu()
+    set_gpu()
     process = Process("11th_saving_raw_routes", Index2())
     # process.save_raw_route()
-    process.save_route_in_h5()
-    # process.load_dataset()
-    # process.train()
-    # process.predict()
-    # process.save_prediction()
-    # process.save_readme()
-    # process.statistic_raw_data()
+    # process.save_route_in_h5()
+    process.load_dataset()
+    process.train()
+    process.predict()
+    process.save_prediction()
+    process.save_readme()
+    process.statistic_raw_data()
 
 
 if __name__ == "__main__":

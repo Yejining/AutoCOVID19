@@ -62,7 +62,7 @@ class Process:
             = self.loader.load_data_from_file(path)
 
     def train(self):
-        self.trainer = Model(self.model_info, self.path_info, self.route_info)
+        self.trainer = Model(self.model_info, self.path_info, self.route_info, self.feature_info)
         self.trainer.train(self.X_train, self.y_train, self.image_info.size)
 
     def predict(self):
