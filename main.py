@@ -5,8 +5,8 @@ from src.process import set_gpu, Process
 def main(index):
     # set_gpu()
     process = Process("11th_saving_raw_routes", Index2())
-    process.save_raw_route()
-    # process.save_route_in_h5()
+    # process.save_raw_route()
+    process.save_route_in_h5()
     # process.load_dataset()
     # process.train()
     # process.predict()

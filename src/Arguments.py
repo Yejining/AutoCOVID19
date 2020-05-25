@@ -59,7 +59,7 @@ class PathInfo:
 class RouteInfo:
     def __init__(self, route_path=None):
         if route_path is not None: self.routes = pd.read_csv(route_path)
-        else: self.routes = pd.read_csv('covid_dataset/raw/MergedRoute.csv')
+        else: self.routes = pd.read_csv('covid_dataset/raw/Figure.csv')#MergedRoute.csv')
 
         self.dates = self.unique_value(self.routes, 'date')
         self.patients = self.unique_value(self.routes, 'patient_id')

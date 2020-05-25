@@ -13,10 +13,14 @@ class Dataset:
         self.model_info = model_info
 
     def save_dataset(self, path, first_day):
+        print("save_dataset")
+        day = [first_day.year, first_day.month, first_day.day]
+        print(type(self.X_set), type(self.y_set), type(day))
+
         with h5py.File(path, 'w') as f:
             set_X = f.create_dataset('X_set', data=self.X_set)
             set_y = f.create_dataset('y_set', data=self.y_set)
-            set_day = f.create_dataset('start_day', data=np.array(first_day))
+            set_day = f.create_dataset('start_day', data=day)
 
     def load_data_from_file(self, path):
         sample_num = self.route_info.duration - (2 * self.model_info.n_step)

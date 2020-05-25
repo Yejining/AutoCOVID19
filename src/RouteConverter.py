@@ -215,6 +215,7 @@ class RouteToIndexConverter:
         return patient_routes
 
     def get_complete_routes(self):
+        print("get complete routes")
         today = self.route_info.first_day
         complete_routes = []
         while True:
@@ -237,25 +238,32 @@ class RouteToIndexConverter:
     def get_dataset(self):
         print("get_dataset")
         complete_routes = self.get_complete_routes()
-        kernel_size = self.image_info.kernel_size
+        feature_size = self.feature_info.get_all_counts()
         size = self.image_info.size
-        dataset = np.zeros((len(complete_routes), kernel_size, size, size))
+        dataset = np.zeros((len(complete_routes), feature_size, size, size))
 
         for i, days in enumerate(complete_routes):
+            print(days)
             self.get_array_image(days, dataset[i, :, :, :])
 
+        print("split X_set and y_set_temp")
         n = dataset.shape[0]
         X_set = []
         y_set_temp = []
         for i in range(self.model_info.n_step, n):
             X_set.append(dataset[i - self.model_info.n_step:i, :, :, :])
             y_set_temp.append(dataset[i:i + 1, :, :, :])
+        X_set = np.asarray(X_set)
+        y_set_temp = np.asarray(y_set_temp)
+        print(X_set.shape, y_set_temp.shape)
 
+        print("combine features in y_set_temp")
         index_range = self.feature_info.get_y_set_index()
+        print("going to combine %d features" % index_range)
         y_set = np.zeros((y_set_temp.shape[0], size, size))
         for i in range(len(y_set_temp)):
             for j in range(index_range):
-                y_set[i] += y_set_temp[i, j, :, :]
+                y_set[i] += y_set_temp[i, 0, j, :, :]
 
         print(X_set.shape, y_set.shape)
 
