@@ -337,7 +337,7 @@ class RouteToIndexConverter:
     def create_diff_file(self, file_path, file_name):
         Path(file_path).mkdir(parents=True, exist_ok=True)
         with open(file_path + file_name, 'w') as csvfile:
-            headers = ['date', 'feature', 'mape', 'rmse', 'mase', 'max']
+            headers = ['date', 'feature', 'mape', 'rmse', 'max', 'max_pred']
             writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n', fieldnames=headers)
             writer.writeheader()
 
