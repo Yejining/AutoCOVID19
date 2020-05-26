@@ -286,48 +286,50 @@ class RouteToIndexConverter:
 
         return data_array
 
-    def save_prediction_image(self, X_test, y_test, pred, start_day, diff, rmse, mape, test_max_value, pred_max_value):
-        # X_test
-        first_day = start_day
-        for sample in range(X_test.shape[0]):
-            sample_path = self.path_info.get_x_test_path() + 'sample%d/' % sample
-            first_day2 = first_day
-            for day in range(X_test.shape[1]):
-                day_path = sample_path + datetime.strftime(first_day2, "%Y-%m-%d") + '/'
-                Path(day_path).mkdir(parents=True, exist_ok=True)
-                self.array_save_image(day_path, X_test[sample][day])
-                first_day2 += timedelta(days=1)
-            first_day += timedelta(days=1)
-
-        # y_test
-        first_day = start_day + timedelta(days=3)
-        for l_sample in range(y_test.shape[0]):
-            sample_path = self.path_info.get_y_test_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
-            Path(sample_path).mkdir(parents=True, exist_ok=True)
-            self.array_save_image(sample_path, y_test[l_sample][0])
-            first_day += timedelta(days=1)
-
-        # pred
-        first_day = start_day + timedelta(days=3)
-        self.create_diff_file(self.path_info.get_diff_path(), self.path_info.diff_name)
-        for l_sample in range(pred.shape[0]):
-            sample_path = self.path_info.get_y_pred_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
-            Path(sample_path).mkdir(parents=True, exist_ok=True)
-            self.array_save_image(sample_path, pred[l_sample][0])
-
-            sample_path = self.path_info.get_y_scaled_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
-            Path(sample_path).mkdir(parents=True, exist_ok=True)
-            self.array_save_image(sample_path, pred[l_sample][0], scaled=True)
-            first_day += timedelta(days=1)
+    def save_prediction_image(self, X_test, y_test, pred, start_day, diff1, diff2, diff3, diff4,
+                              rmse, mape, test_max_value, pred_max_value):
+        # # X_test
+        # first_day = start_day
+        # for sample in range(X_test.shape[0]):
+        #     sample_path = self.path_info.get_x_test_path() + 'sample%d/' % sample
+        #     first_day2 = first_day
+        #     for day in range(X_test.shape[1]):
+        #         day_path = sample_path + datetime.strftime(first_day2, "%Y-%m-%d") + '/'
+        #         Path(day_path).mkdir(parents=True, exist_ok=True)
+        #         self.array_save_image(day_path, X_test[sample][day])
+        #         first_day2 += timedelta(days=1)
+        #     first_day += timedelta(days=1)
+        #
+        # # y_test
+        # first_day = start_day + timedelta(days=3)
+        # for l_sample in range(y_test.shape[0]):
+        #     sample_path = self.path_info.get_y_test_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
+        #     Path(sample_path).mkdir(parents=True, exist_ok=True)
+        #     self.array_save_image(sample_path, y_test[l_sample][0])
+        #     first_day += timedelta(days=1)
+        #
+        # # pred
+        # first_day = start_day + timedelta(days=3)
+        # for l_sample in range(pred.shape[0]):
+        #     sample_path = self.path_info.get_y_pred_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
+        #     Path(sample_path).mkdir(parents=True, exist_ok=True)
+        #     self.array_save_image(sample_path, pred[l_sample][0])
+        #
+        #     sample_path = self.path_info.get_y_scaled_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
+        #     Path(sample_path).mkdir(parents=True, exist_ok=True)
+        #     self.array_save_image(sample_path, pred[l_sample][0], scaled=True)
+        #     first_day += timedelta(days=1)
 
         # diff
         l_first_day = start_day + timedelta(days=3)
-        for l_sample in range(diff.shape[0]):
+        self.create_diff_file(self.path_info.get_diff_path(), self.path_info.diff_name)
+        for l_sample in range(diff1.shape[0]):
             sample_path = self.path_info.get_diff_path() + datetime.strftime(l_first_day, "%Y-%m-%d") + '/'
             Path(sample_path).mkdir(parents=True, exist_ok=True)
-            self.array_save_image(sample_path, diff[l_sample])
+            self.array_save_image(sample_path, diff1[l_sample],
+                                  array2=diff2[l_sample], array3=diff3[l_sample], array4=diff4[l_sample])
 
-            for l_feature in range(diff.shape[1]):
+            for l_feature in range(diff1.shape[1]):
                 self.append_list_as_row(self.path_info.get_diff_name(),
                                    [datetime.strftime(l_first_day, "%Y-%m-%d"), l_feature,
                                     mape[l_sample][l_feature], rmse[l_sample][l_feature],
@@ -347,11 +349,17 @@ class RouteToIndexConverter:
             csv_writer = writer(write_obj)
             csv_writer.writerow(list_of_elem)
 
-    def array_save_image(self, path, array, scaled=False):
+    def array_save_image(self, path, array, array2=None, array3=None, array4=None, scaled=False):
         for channel in range(array.shape[0]):
             if scaled:
                 new_array = array[channel]
                 new_array[new_array >= 0] *= 255
                 self.save_grid(path + str(channel) + ".png", new_array, kernel=False)
             else:
-                self.save_grid(path + str(channel) + ".png", array[channel], kernel=False)
+                if array2 is None and array3 is None and array3 is None:
+                    self.save_grid(path + str(channel) + ".png", array[channel], kernel=False)
+                else:
+                    self.save_grid(path + str(channel) + ".png", array[channel], kernel=False)
+                    self.save_grid(path + str(channel + 1) + ".png", array2[0], kernel=False)
+                    self.save_grid(path + str(channel + 2) + ".png", array3[0], kernel=False)
+                    self.save_grid(path + str(channel + 3) + ".png", array4[channel], kernel=False)

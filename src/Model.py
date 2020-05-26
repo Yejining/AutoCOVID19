@@ -12,6 +12,7 @@ import keras.backend.tensorflow_backend as K
 import tensorflow as tf
 import keras.backend.tensorflow_backend as tfback
 import numpy as np
+from numpy import minimum
 
 
 class Model:
@@ -66,7 +67,10 @@ class Model:
         seq.save(self.path_info.get_model_path())
 
     def get_accuracy(self, pred, y_test):
-        diff = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
+        diff1 = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
+        diff2 = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
+        diff3 = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
+        diff4 = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
         rmse = np.zeros((pred.shape[0], pred.shape[2]))
         mape = np.zeros((pred.shape[0], pred.shape[2]))
         test_max_value = np.zeros((pred.shape[0], pred.shape[2]))
@@ -76,7 +80,13 @@ class Model:
             for j in range(pred.shape[2]):  # features
                 pred_diff = pred[i][0][j]
                 y_test_diff = y_test[i][0][j]
-                diff[i, j, :, :] = 255 - np.abs(y_test_diff - pred_diff)
+
+                diff1[i, j, :, :] = 255 - np.abs(y_test_diff - pred_diff)
+                diff2[i, j, :, :] = 255 - (y_test_diff - pred_diff)
+                diff3[i, j, :, :] = 255 - (pred_diff - y_test_diff)
+                diff4[i, j, :, :] = minimum(pred_diff, y_test_diff)
+                diff2[diff2 > 255] = 255
+                diff3[diff3 > 255] = 255
 
                 pred_diff[pred_diff >= 0] += 1
                 y_test_diff[y_test_diff >= 0] += 1
@@ -86,5 +96,5 @@ class Model:
                 pred_max_value[i][j] = np.amax(pred[i][0][j]) + 1
                 mape[i][j] = np.mean(np.abs((y_test_diff - pred_diff) / y_test_diff))
 
-        return diff, rmse, mape, test_max_value, pred_max_value
+        return diff1, diff2, diff3, diff4, rmse, mape, test_max_value, pred_max_value
 

@@ -67,13 +67,14 @@ class Process:
     def predict(self):
         self.model = load_model(self.path_info.get_model_path())
         self.pred = self.model.predict(self.X_test)
-        self.diff, self.rmse, self.mape, self.test_max_value, self.pred_max_value =\
+        self.diff1, self.diff2, self.diff3, self.diff4, self.rmse, self.mape, self.test_max_value, self.pred_max_value =\
             self.trainer.get_accuracy(self.pred, self.y_test)
 
     def save_prediction(self):
         print(self.X_test.shape, self.y_test.shape, self.pred.shape)
         self.converter.save_prediction_image(self.X_test, self.y_test, self.pred, self.start_day2,
-                                             self.diff, self.rmse, self.mape, self.test_max_value, self.pred_max_value)
+                                             self.diff1, self.diff2, self.diff3, self.diff4, self.rmse, self.mape,
+                                             self.test_max_value, self.pred_max_value)
 
     def save_readme(self):
         self.general_info.save_readme(
