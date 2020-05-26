@@ -24,7 +24,7 @@ class Process:
         self.converter = RouteToIndexConverter(
             self.path_info, self.route_info, self.image_info, self.feature_info, self.model_info)
         self.loader = Dataset(self.route_info, self.model_info)
-        self.trainer = None
+        self.trainer = Model(self.model_info, self.path_info, self.route_info, self.feature_info)
 
         self.dataset = None
         self.X_train = None
@@ -62,7 +62,6 @@ class Process:
             = self.loader.load_data_from_file(path)
 
     def train(self):
-        self.trainer = Model(self.model_info, self.path_info, self.route_info, self.feature_info)
         self.trainer.train(self.X_train, self.y_train, self.image_info.size)
 
     def predict(self):
@@ -93,17 +92,32 @@ class Process:
             writer = csv.writer(f)
             writer.writerows(accumulated_routes_combined)
 
+    def one_cycle(self):
+        self.save_raw_route()
+        self.save_route_in_h5()
+        self.load_dataset()
+        self.train()
+        self.predict()
+        self.save_prediction()
+        self.save_readme()
+        self.statistic_raw_data()
 
-def main(index):
-    set_gpu()
-    process = Process(index=index)
-    process.save_raw_route()
-    process.save_route_in_h5()
-    process.load_dataset()
-    process.train()
-    process.predict()
-    process.save_prediction()
-    process.save_readme()
+    def train_then_predict(self):
+        Path(self.path_info.name).mkdir(parents=True, exist_ok=True)
+        self.save_route_in_h5()
+        self.load_dataset()
+        self.train()
+        self.predict()
+        self.save_prediction()
+        self.save_readme()
+        self.statistic_raw_data()
+
+    def load_then_predict(self):
+        self.load_dataset()
+        self.predict()
+        self.save_prediction()
+        # self.save_readme()
+        # self.statistic_raw_data()
 
 
 def set_gpu():
@@ -118,7 +132,3 @@ def set_gpu():
         except RuntimeError as e:
             # Memory growth must be set before GPUs have been initialized
             print(e)
-
-
-if __name__ == "__main__":
-    main(index=10)

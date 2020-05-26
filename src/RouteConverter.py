@@ -19,6 +19,7 @@ class RouteToIndexConverter:
     def convert_original_route(self):
         path = self.path_info.get_route_saving_path()
         for patient in self.route_info.patients:
+            if patient <= 1000000034: continue
             self.save_raw_patient_route(path, patient)
 
     def initialize_combined_route(self):
@@ -48,15 +49,15 @@ class RouteToIndexConverter:
                 if len(route_places) == 0: continue
                 for each_place in route_places:
                     age = each_place[0]
+                    if age != -1: routes_combined[index][age + 1] += 1
                     sex = each_place[1]
+                    if sex != -1: routes_combined[index][sex + 1] += 1
                     infection = each_place[2]
+                    if infection != -1: routes_combined[index][infection + 1] += 1
                     purpose = each_place[3]
+                    if purpose != -1:  routes_combined[index][purpose + 1] += 1
                     day = each_place[4]
-                    routes_combined[index][age + 1] += 1
-                    routes_combined[index][sex + 1] += 1
-                    routes_combined[index][infection + 1] += 1
-                    routes_combined[index][purpose + 1] += 1
-                    routes_combined[index][day + 1] += 1
+                    if day != -1: routes_combined[index][day + 1] += 1
 
         return routes_combined
 
@@ -299,7 +300,7 @@ class RouteToIndexConverter:
             first_day += timedelta(days=1)
 
         # y_test
-        first_day = first_day + timedelta(days=3)
+        first_day = start_day + timedelta(days=3)
         for l_sample in range(y_test.shape[0]):
             sample_path = self.path_info.get_y_test_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
             Path(sample_path).mkdir(parents=True, exist_ok=True)
@@ -307,7 +308,7 @@ class RouteToIndexConverter:
             first_day += timedelta(days=1)
 
         # pred
-        first_day = first_day + timedelta(days=3)
+        first_day = start_day + timedelta(days=3)
         self.create_diff_file(self.path_info.get_diff_path(), self.path_info.diff_name)
         for l_sample in range(pred.shape[0]):
             sample_path = self.path_info.get_y_pred_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
@@ -319,19 +320,19 @@ class RouteToIndexConverter:
             self.array_save_image(sample_path, pred[l_sample][0], scaled=True)
             first_day += timedelta(days=1)
 
-            # diff
-            l_first_day = first_day + timedelta(days=3)
-            for l_sample in range(diff.shape[0]):
-                sample_path = self.path_info.get_diff_path() + datetime.strftime(l_first_day, "%Y-%m-%d") + '/'
-                Path(sample_path).mkdir(parents=True, exist_ok=True)
-                self.array_save_image(sample_path, diff[l_sample])
+        # diff
+        l_first_day = start_day + timedelta(days=3)
+        for l_sample in range(diff.shape[0]):
+            sample_path = self.path_info.get_diff_path() + datetime.strftime(l_first_day, "%Y-%m-%d") + '/'
+            Path(sample_path).mkdir(parents=True, exist_ok=True)
+            self.array_save_image(sample_path, diff[l_sample])
 
-                for l_feature in range(diff.shape[1]):
-                    self.append_list_as_row(self.path_info.get_diff_name(),
-                                       [datetime.strftime(l_first_day, "%Y-%m-%d"), l_feature,
-                                        mape[l_sample][l_feature], rmse[l_sample][l_feature],
-                                        test_max_value[l_sample][l_feature], pred_max_value[l_sample][l_feature]])
-                l_first_day += timedelta(days=1)
+            for l_feature in range(diff.shape[1]):
+                self.append_list_as_row(self.path_info.get_diff_name(),
+                                   [datetime.strftime(l_first_day, "%Y-%m-%d"), l_feature,
+                                    mape[l_sample][l_feature], rmse[l_sample][l_feature],
+                                    test_max_value[l_sample][l_feature], pred_max_value[l_sample][l_feature]])
+            l_first_day += timedelta(days=1)
 
     def create_diff_file(self, file_path, file_name):
         Path(file_path).mkdir(parents=True, exist_ok=True)

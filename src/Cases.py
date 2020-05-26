@@ -323,3 +323,19 @@ class Index17(Index):
 
     def day_category(self, day):
         return -1
+
+
+class Index18(Index):
+    def __init__(self):
+        super().__init__()
+        self.names = ['age', 'sex', 'infection_case', 'type', 'date']
+        self.counts = [11, 2, 0, 21, 7]
+        self.visit_types = ['karaoke', 'gas_station', 'gym', 'bakery', 'pc_cafe',
+                       'beauty_salon', 'school', 'church', 'bank', 'cafe',
+                       'bar', 'post_office', 'real_estate_agency', 'lodging',
+                       'public_transportation', 'restaurant', 'etc', 'store',
+                       'hospital', 'pharmacy', 'airport']
+        self.causes = []
+
+    def infection_case_category(self, infection_case):
+        return -1

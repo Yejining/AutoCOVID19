@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from keras.utils.io_utils import HDF5Matrix
 import numpy as np
 import h5py
+from pathlib import Path
 
 
 class Dataset:

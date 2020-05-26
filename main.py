@@ -1,20 +1,13 @@
-from src.Cases import Index, Index2
+from src.Cases import Index, Index2, Index3, Index4, Index5, Index6, Index7, Index8, Index9, Index10, Index11, Index12, \
+    Index13, Index14, Index15, Index16, Index17, Index18
 from src.process import set_gpu, Process
 
 
 def main(index):
     set_gpu()
-    process = Process("11th_saving_raw_routes", Index2())
-    # process.save_raw_route()
-    # process.save_route_in_h5()
-    process.load_dataset()
-    print("start train")
-    process.train()
-    print("start predicting")
-    process.predict()
-    process.save_prediction()
-    # process.save_readme()
-    # process.statistic_raw_data()
+
+    process18 = Process("12th_18th", Index18())
+    process18.train_then_predict()
 
 
 if __name__ == "__main__":
