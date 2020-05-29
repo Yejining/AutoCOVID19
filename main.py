@@ -6,7 +6,6 @@ from src.Cases import Index, Index2, Index3, Index4, Index5, Index6, Index7, Ind
     Index65, Index66, Index67, Index68, Index69, Index70
 from src.process import set_gpu, Process
 
-
 def main(index):
     set_gpu()
 
@@ -30,7 +29,7 @@ def main(index):
     #     process.load_then_save_accuracy()
 
     # train then predict
-    for i in range(47, 57 + 1):
+    for i in range(48, 57 + 1):
         process = Process(name + str(i) + "th", index[i])
         process.train_then_predict()
     for i in range(67, 70 + 1):

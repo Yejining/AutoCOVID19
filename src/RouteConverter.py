@@ -19,8 +19,33 @@ class RouteToIndexConverter:
     def convert_original_route(self):
         path = self.path_info.get_route_saving_path()
         for patient in self.route_info.patients:
-            if patient <= 1000000034: continue
             self.save_raw_patient_route(path, patient)
+
+    def correlate(self, visit_types, correlation_matrix):
+        for patient in self.route_info.patients:
+            correlation_matrix = self.group_types(patient, visit_types, correlation_matrix)
+        return correlation_matrix
+
+    def group_types(self, patient, visit_types, correlation_matrix):
+        patient_places = self.route_info.get_places(patient)
+        patient_places.sort_values(by=['date'])
+
+        # remove duplicated items
+        for i in range(len(patient_places) - 2, -1, -1):
+            place1 = patient_places.iloc[[i]]
+            place2 = patient_places.iloc[[i + 1]]
+            if place1['type'].tolist()[0] == place2['type'].tolist()[0]:
+                patient_places = patient_places.drop(patient_places.index[i + 1])
+
+        for i in range(len(patient_places) - 1):
+            place1 = patient_places.iloc[[i]]
+            place2 = patient_places.iloc[[i + 1]]
+            index1 = visit_types.index(place1['type'].tolist()[0])
+            index2 = visit_types.index(place2['type'].tolist()[0])
+            correlation_matrix[index1][index2] += 1
+            correlation_matrix[index2][index1] += 1
+
+        return correlation_matrix
 
     def initialize_combined_route(self):
         today = self.route_info.first_day
@@ -269,10 +294,9 @@ class RouteToIndexConverter:
         for index in place_indices[1]:
             row = index[5]
             col = index[6]
+            y_dataset[0][row][col] += self.image_info.weight
             for feature in range(5):
-                y_dataset[0][row][col] += self.image_info.weight
-
-                if feature == -1: continue
+                if index[feature] == -1: continue
                 x_dataset[index[feature]][row][col] += self.image_info.weight
 
         # kde
@@ -352,6 +376,14 @@ class RouteToIndexConverter:
             headers = ['date', 'feature', 'mape', 'rmse', 'mape_1_added', 'rmse_1_added', 'max', 'max_pred']
             writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n', fieldnames=headers)
             writer.writeheader()
+
+    def create_correlation_file(self, visit_types, correlation_matrix):
+        with open('correlation.csv', 'w') as csvfile:
+            csv_writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n', fieldnames=visit_types)
+            csv_writer.writeheader()
+        with open('correlation.csv', 'a+', newline='') as write_obj:
+            csv_writer = writer(write_obj)
+            csv_writer.writerows(correlation_matrix)
 
     def append_list_as_row(self, file_name, list_of_elem):
         print(list_of_elem[4])

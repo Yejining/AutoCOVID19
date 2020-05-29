@@ -3,6 +3,7 @@ import csv
 from keras.models import load_model
 import tensorflow as tf
 from pathlib import Path
+import numpy as np
 
 from src.Arguments import PathInfo, RouteInfo, ImageInfo, ModelInfo, GeneralInfo
 from src.Dataset import Dataset
@@ -54,6 +55,17 @@ class Process:
     def save_route_in_h5(self):
         self.X_set, self.y_set = self.converter.get_dataset()
         self.loader.save_dataset(self.path_info.get_dataset_path(), self.X_set, self.y_set, self.route_info.first_day)
+
+    def correlate(self):
+        visit_types = ['karaoke', 'gas_station', 'gym', 'bakery', 'pc_cafe',
+                        'beauty_salon', 'school', 'church', 'bank', 'cafe',
+                        'bar', 'post_office', 'real_estate_agency', 'lodging',
+                        'public_transportation', 'restaurant', 'etc', 'store',
+                        'hospital', 'pharmacy', 'airport']
+        correlation_matrix = np.zeros((len(visit_types), len(visit_types)))
+        correlation_matrix = self.converter.correlate(visit_types, correlation_matrix)
+        self.converter.create_correlation_file(visit_types, correlation_matrix)
+
 
     # get dataset(images) from file
     def load_dataset(self):
