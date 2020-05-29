@@ -244,85 +244,94 @@ class RouteToIndexConverter:
         complete_routes = self.get_complete_routes()
         feature_size = self.feature_info.get_all_counts()
         size = self.image_info.size
-        dataset = np.zeros((len(complete_routes), feature_size, size, size))
+        x_dataset = np.zeros((len(complete_routes), feature_size, size, size))
+        y_dataset = np.zeros((len(complete_routes), 1, size, size))
 
         for i, days in enumerate(complete_routes):
             print(days)
-            self.get_array_image(days, dataset[i, :, :, :])
+            self.get_array_image(days, x_dataset[i, :, :, :], y_dataset[i, :, :, :])
 
         print("split X_set and y_set_temp")
-        n = dataset.shape[0]
+        n = x_dataset.shape[0]
         X_set = []
-        y_set_temp = []
+        y_set = []
         for i in range(self.model_info.n_step, n):
-            X_set.append(dataset[i - self.model_info.n_step:i, :, :, :])
-            y_set_temp.append(dataset[i:i + 1, :, :, :])
+            X_set.append(x_dataset[i - self.model_info.n_step:i, :, :, :])
+            y_set.append(y_dataset[i:i + 1, :, :, :])
         X_set = np.asarray(X_set)
-        y_set_temp = np.asarray(y_set_temp)
-        print(X_set.shape, y_set_temp.shape)
-
-        print("combine features in y_set_temp")
-        index_range = self.feature_info.get_y_set_index()
-        print("going to combine %d features" % index_range)
-        y_set = np.zeros((y_set_temp.shape[0], 1, 1, size, size))
-        for i in range(len(y_set_temp)):
-            for j in range(index_range):
-                y_set[i][0][0] += y_set_temp[i, 0, j, :, :]
-
+        y_set = np.asarray(y_set)
         print(X_set.shape, y_set.shape)
 
         return X_set, y_set
 
-    def get_array_image(self, place_indices, data_array):
+    def get_array_image(self, place_indices, x_dataset, y_dataset):
+        # making array
         for index in place_indices[1]:
             row = index[5]
             col = index[6]
             for feature in range(5):
+                y_dataset[0][row][col] += self.image_info.weight
+
                 if feature == -1: continue
-                data_array[index[feature]][row][col] += self.image_info.weight
+                x_dataset[index[feature]][row][col] += self.image_info.weight
 
-        for channel in range(data_array.shape[0]):
-            data_array[channel] = self.overlay_kernel(data_array[channel])
+        # kde
+        y_dataset[0] = self.overlay_kernel(y_dataset[0])
+        for channel in range(x_dataset.shape[0]):
+            x_dataset[channel] = self.overlay_kernel(x_dataset[channel])
 
-        return data_array
+    def save_accuracy(self, start_day, diff1,
+                      rmse, mape, test_max_value, pred_max_value,
+                      rmse_1_added, mape_1_added):
+        l_first_day = start_day + timedelta(days=3)
+        self.create_accuracy_file()
+        for l_sample in range(diff1.shape[0]):
+            for l_feature in range(diff1.shape[1]):
+                self.append_list_as_row(self.path_info.get_accuracy_name(),
+                                        [datetime.strftime(l_first_day, "%Y-%m-%d"), l_feature,
+                                         mape[l_sample][l_feature], rmse[l_sample][l_feature],
+                                         mape_1_added[l_sample][l_feature], rmse_1_added[l_sample][l_feature],
+                                         test_max_value[l_sample][l_feature], pred_max_value[l_sample][l_feature]])
+            l_first_day += timedelta(days=1)
 
     def save_prediction_image(self, X_test, y_test, pred, start_day, diff1, diff2, diff3, diff4,
-                              rmse, mape, test_max_value, pred_max_value):
-        # # X_test
-        # first_day = start_day
-        # for sample in range(X_test.shape[0]):
-        #     sample_path = self.path_info.get_x_test_path() + 'sample%d/' % sample
-        #     first_day2 = first_day
-        #     for day in range(X_test.shape[1]):
-        #         day_path = sample_path + datetime.strftime(first_day2, "%Y-%m-%d") + '/'
-        #         Path(day_path).mkdir(parents=True, exist_ok=True)
-        #         self.array_save_image(day_path, X_test[sample][day])
-        #         first_day2 += timedelta(days=1)
-        #     first_day += timedelta(days=1)
-        #
-        # # y_test
-        # first_day = start_day + timedelta(days=3)
-        # for l_sample in range(y_test.shape[0]):
-        #     sample_path = self.path_info.get_y_test_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
-        #     Path(sample_path).mkdir(parents=True, exist_ok=True)
-        #     self.array_save_image(sample_path, y_test[l_sample][0])
-        #     first_day += timedelta(days=1)
-        #
-        # # pred
-        # first_day = start_day + timedelta(days=3)
-        # for l_sample in range(pred.shape[0]):
-        #     sample_path = self.path_info.get_y_pred_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
-        #     Path(sample_path).mkdir(parents=True, exist_ok=True)
-        #     self.array_save_image(sample_path, pred[l_sample][0])
-        #
-        #     sample_path = self.path_info.get_y_scaled_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
-        #     Path(sample_path).mkdir(parents=True, exist_ok=True)
-        #     self.array_save_image(sample_path, pred[l_sample][0], scaled=True)
-        #     first_day += timedelta(days=1)
+                              rmse, mape, test_max_value, pred_max_value,
+                              rmse_1_added, mape_1_added):
+        # X_test
+        first_day = start_day
+        for sample in range(X_test.shape[0]):
+            sample_path = self.path_info.get_x_test_path() + 'sample%d/' % sample
+            first_day2 = first_day
+            for day in range(X_test.shape[1]):
+                day_path = sample_path + datetime.strftime(first_day2, "%Y-%m-%d") + '/'
+                Path(day_path).mkdir(parents=True, exist_ok=True)
+                self.array_save_image(day_path, X_test[sample][day])
+                first_day2 += timedelta(days=1)
+            first_day += timedelta(days=1)
 
-        # diff
+        # y_test
+        first_day = start_day + timedelta(days=3)
+        for l_sample in range(y_test.shape[0]):
+            sample_path = self.path_info.get_y_test_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
+            Path(sample_path).mkdir(parents=True, exist_ok=True)
+            self.array_save_image(sample_path, y_test[l_sample][0])
+            first_day += timedelta(days=1)
+
+        # pred
+        first_day = start_day + timedelta(days=3)
+        for l_sample in range(pred.shape[0]):
+            sample_path = self.path_info.get_y_pred_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
+            Path(sample_path).mkdir(parents=True, exist_ok=True)
+            self.array_save_image(sample_path, pred[l_sample][0])
+
+            sample_path = self.path_info.get_y_scaled_path() + datetime.strftime(first_day, "%Y-%m-%d") + '/'
+            Path(sample_path).mkdir(parents=True, exist_ok=True)
+            self.array_save_image(sample_path, pred[l_sample][0], scaled=True)
+            first_day += timedelta(days=1)
+
+        # diff, accuracy
         l_first_day = start_day + timedelta(days=3)
-        self.create_diff_file(self.path_info.get_diff_path(), self.path_info.diff_name)
+        self.create_accuracy_file()
         for l_sample in range(diff1.shape[0]):
             sample_path = self.path_info.get_diff_path() + datetime.strftime(l_first_day, "%Y-%m-%d") + '/'
             Path(sample_path).mkdir(parents=True, exist_ok=True)
@@ -330,16 +339,17 @@ class RouteToIndexConverter:
                                   array2=diff2[l_sample], array3=diff3[l_sample], array4=diff4[l_sample])
 
             for l_feature in range(diff1.shape[1]):
-                self.append_list_as_row(self.path_info.get_diff_name(),
+                self.append_list_as_row(self.path_info.get_accuracy_name(),
                                    [datetime.strftime(l_first_day, "%Y-%m-%d"), l_feature,
                                     mape[l_sample][l_feature], rmse[l_sample][l_feature],
+                                    mape_1_added[l_sample][l_feature], rmse_1_added[l_sample][l_feature],
                                     test_max_value[l_sample][l_feature], pred_max_value[l_sample][l_feature]])
             l_first_day += timedelta(days=1)
 
-    def create_diff_file(self, file_path, file_name):
-        Path(file_path).mkdir(parents=True, exist_ok=True)
-        with open(file_path + file_name, 'w') as csvfile:
-            headers = ['date', 'feature', 'mape', 'rmse', 'max', 'max_pred']
+    def create_accuracy_file(self):
+        Path(self.path_info.get_accuracy_path()).mkdir(parents=True, exist_ok=True)
+        with open(self.path_info.get_accuracy_name(), 'w') as csvfile:
+            headers = ['date', 'feature', 'mape', 'rmse', 'mape_1_added', 'rmse_1_added', 'max', 'max_pred']
             writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n', fieldnames=headers)
             writer.writeheader()
 

@@ -67,14 +67,22 @@ class Process:
     def predict(self):
         self.model = load_model(self.path_info.get_model_path())
         self.pred = self.model.predict(self.X_test)
-        self.diff1, self.diff2, self.diff3, self.diff4, self.rmse, self.mape, self.test_max_value, self.pred_max_value =\
+        self.diff1, self.diff2, self.diff3, self.diff4, self.rmse, self.mape,\
+        self.test_max_value, self.pred_max_value, self.rmse_1_added, self.mape_1_added=\
             self.trainer.get_accuracy(self.pred, self.y_test)
+
+    def save_accuracy(self):
+        self.converter.save_accuracy(self.start_day2, self.diff1,
+                                     self.rmse, self.mape,
+                                     self.test_max_value, self.pred_max_value,
+                                     self.rmse_1_added, self.mape_1_added)
 
     def save_prediction(self):
         print(self.X_test.shape, self.y_test.shape, self.pred.shape)
         self.converter.save_prediction_image(self.X_test, self.y_test, self.pred, self.start_day2,
                                              self.diff1, self.diff2, self.diff3, self.diff4, self.rmse, self.mape,
-                                             self.test_max_value, self.pred_max_value)
+                                             self.test_max_value, self.pred_max_value,
+                                             self.rmse_1_added, self.mape_1_added)
 
     def save_readme(self):
         self.general_info.save_readme(
@@ -119,6 +127,11 @@ class Process:
         self.save_prediction()
         # self.save_readme()
         # self.statistic_raw_data()
+
+    def load_then_save_accuracy(self):
+        self.load_dataset()
+        self.predict()
+        self.save_accuracy()
 
 
 def set_gpu():

@@ -71,8 +71,11 @@ class Model:
         diff2 = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
         diff3 = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
         diff4 = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))
+
         rmse = np.zeros((pred.shape[0], pred.shape[2]))
+        rmse_1_added = np.zeros((pred.shape[0], pred.shape[2]))
         mape = np.zeros((pred.shape[0], pred.shape[2]))
+        mape_1_added = np.zeros((pred.shape[0], pred.shape[2]))
         test_max_value = np.zeros((pred.shape[0], pred.shape[2]))
         pred_max_value = np.zeros((pred.shape[0], pred.shape[2]))
 
@@ -81,6 +84,7 @@ class Model:
                 pred_diff = pred[i][0][j]
                 y_test_diff = y_test[i][0][j]
 
+                # diff
                 diff1[i, j, :, :] = 255 - np.abs(y_test_diff - pred_diff)
                 diff2[i, j, :, :] = 255 - (y_test_diff - pred_diff)
                 diff3[i, j, :, :] = 255 - (pred_diff - y_test_diff)
@@ -88,13 +92,34 @@ class Model:
                 diff2[diff2 > 255] = 255
                 diff3[diff3 > 255] = 255
 
+                abc_rmse = 0
+                abc_mape = 0
+                count = 0
+                # rmse, mape
+                for row in range(pred.shape[3]):
+                    for col in range(pred.shape[4]):
+                        if y_test_diff[row][col] == 0: continue
+                        abc_rmse += (y_test_diff[row][col] - pred_diff[row][col]) ** 2
+                        abc_mape += abs((y_test_diff[row][col] - pred_diff[row][col]) / y_test_diff[row][col])
+                        count += 1
+
+                if count == 0:
+                    rmse[i][j] = -1
+                    mape[i][j] = -1
+                else:
+                    rmse[i][j] = sqrt(abc_rmse / count)
+                    mape[i][j] = abc_mape / count
+
                 pred_diff[pred_diff >= 0] += 1
                 y_test_diff[y_test_diff >= 0] += 1
 
-                rmse[i][j] = sqrt(mean_squared_error(y_test_diff, pred_diff))
-                test_max_value[i][j] = np.amax(y_test[i][0][j]) + 1
-                pred_max_value[i][j] = np.amax(pred[i][0][j]) + 1
-                mape[i][j] = np.mean(np.abs((y_test_diff - pred_diff) / y_test_diff))
+                rmse_1_added[i][j] = sqrt(mean_squared_error(y_test_diff, pred_diff))
+                mape_1_added[i][j] = np.mean(np.abs((y_test_diff - pred_diff) / y_test_diff))
 
-        return diff1, diff2, diff3, diff4, rmse, mape, test_max_value, pred_max_value
+                # max
+                test_max_value[i][j] = np.amax(y_test[i][0][j])
+                pred_max_value[i][j] = np.amax(pred[i][0][j])
+
+        return diff1, diff2, diff3, diff4, rmse, mape,\
+               test_max_value, pred_max_value, rmse_1_added, mape_1_added
 

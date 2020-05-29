@@ -18,10 +18,11 @@ class PathInfo:
     scaled_path = 'scaled/'
     statistics_path = 'statistics/'
     diff_path = 'diff/'
-    diff_name = 'accuracy.csv'
+    accuracy_path = 'covid_dataset/accuracy/'
 
     def __init__(self, index=0, appendix=None):
         self.name = 'covid_dataset/{}/'.format(str(index))
+        self.index = index
         if appendix is not None: self.name += '_{}/'.format(appendix)
 
     def get_route_saving_path(self):
@@ -60,8 +61,11 @@ class PathInfo:
     def get_diff_path(self):
         return self.name + self.pred_path + self.diff_path
 
-    def get_diff_name(self):
-        return self.get_diff_path() + self.diff_name
+    def get_accuracy_path(self):
+        return self.accuracy_path
+
+    def get_accuracy_name(self):
+        return self.get_accuracy_path() + 'accuracy_' + str(self.index) + '.csv'
 
 
 class RouteInfo:
