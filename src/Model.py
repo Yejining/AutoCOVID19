@@ -1,6 +1,8 @@
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from keras.callbacks import Callback
 from keras.layers import AveragePooling3D
 from keras.models import Sequential, load_model
 from keras.layers.convolutional import Conv3D, Conv1D, Conv2D
@@ -16,7 +18,8 @@ from numpy import minimum
 
 
 class Model:
-    def __init__(self, model_info, path_info, route_info, feature_info):
+    def __init__(self, name, model_info, path_info, route_info, feature_info):
+        self.name = name
         self.model_info = model_info
         self.path_info = path_info
         self.route_info = route_info
@@ -28,27 +31,31 @@ class Model:
         activation = self.model_info.activation
         optimizer = self.model_info.optimizer
         loss = self.model_info.loss
+        convlstm_kernel = self.convlstm_kernel_size
+        conv_kernel = self.conv_kernel_size
+
+        print("convlstm_kernel, conv_kernel:", convlstm_kernel, conv_kernel)
 
         with K.tf_ops.device('/GPU:0'):
             seq = Sequential()
-            seq.add(ConvLSTM2D(filters=1, kernel_size=(3, 3), data_format='channels_first',
+            seq.add(ConvLSTM2D(filters=1, kernel_size=(convlstm_kernel, convlstm_kernel), data_format='channels_first',
                                input_shape=(n_step, channel, size, size),
                                padding='same', return_sequences=True))
             seq.add(BatchNormalization())
 
-            seq.add(ConvLSTM2D(filters=1, kernel_size=(3, 3), data_format='channels_first',
+            seq.add(ConvLSTM2D(filters=1, kernel_size=(convlstm_kernel, convlstm_kernel), data_format='channels_first',
                                padding='same', return_sequences=True))
             seq.add(BatchNormalization())
 
-            seq.add(ConvLSTM2D(filters=1, kernel_size=(3, 3), data_format='channels_first',
+            seq.add(ConvLSTM2D(filters=1, kernel_size=(convlstm_kernel, convlstm_kernel), data_format='channels_first',
                                padding='same', return_sequences=True))
             seq.add(BatchNormalization())
 
-            seq.add(ConvLSTM2D(filters=1, kernel_size=(3, 3), data_format='channels_first',
+            seq.add(ConvLSTM2D(filters=1, kernel_size=(convlstm_kernel, convlstm_kernel), data_format='channels_first',
                                padding='same', return_sequences=True))
             seq.add(BatchNormalization())
 
-            seq.add(Conv3D(filters=1, kernel_size=(3, 3, 3),
+            seq.add(Conv3D(filters=1, kernel_size=(conv_kernel, conv_kernel, conv_kernel),
                            activation=activation,
                            padding='same', data_format='channels_first'))
 
@@ -58,13 +65,19 @@ class Model:
 
         return seq
 
-    def train(self, X_train, y_train, size):
-        epochs = self.model_info.epochs
-        batch_size = self.model_info.batch_size
+    def train(self, conv_kernel_size, convlstm_kernel_size, epoch, batch_size,
+              X_train, y_train, X_eval, y_eval, size):
+
+        self.conv_kernel_size = conv_kernel_size
+        self.convlstm_kernel_size = convlstm_kernel_size
 
         seq = self.get_model(size)
-        seq.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, shuffle='batch')
-        seq.save(self.path_info.get_model_path())
+        seq.fit(X_train, y_train, validation_data=(X_eval, y_eval), epochs=epoch, batch_size=batch_size, shuffle='batch')
+        seq.save(self.path_info.name + str(convlstm_kernel_size) + "_" + str(conv_kernel_size) + "_" + str(epoch) +
+                 "_" + str(batch_size) + ".h5")
+        score = seq.evaluate(X_eval, y_eval)
+
+        return score
 
     def get_accuracy(self, pred, y_test):
         diff1 = np.zeros((pred.shape[0], pred.shape[2], pred.shape[3], pred.shape[4]))

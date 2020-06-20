@@ -125,7 +125,7 @@ class ModelInfo:
         self.activation = activation # 'relu', 'sigmoid
 
     def set_split_num(self, sample_num):
-        if self.split_num == 0: self.split_num = int(sample_num * 0.7)
+        if self.split_num == 0: self.split_num = int(sample_num * 0.8)
         return self.split_num
 
 

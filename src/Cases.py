@@ -6,10 +6,10 @@ class Index:
         self.names = ['age', 'sex', 'infection_case', 'type', 'date']
         self.counts = [11, 2, 4, 21, 7]
         self.visit_types = ['karaoke', 'gas_station', 'gym', 'bakery', 'pc_cafe',
-                       'beauty_salon', 'school', 'church', 'bank', 'cafe',
-                       'bar', 'post_office', 'real_estate_agency', 'lodging',
-                       'public_transportation', 'restaurant', 'etc', 'store',
-                       'hospital', 'pharmacy', 'airport']
+                                'beauty_salon', 'school', 'church', 'bank', 'cafe',
+                                'bar', 'post_office', 'real_estate_agency', 'lodging',
+                                'public_transportation', 'restaurant', 'etc', 'store',
+                                'hospital', 'pharmacy', 'airport']
         self.causes = ['community infection', 'etc', 'contact with patient', 'overseas inflow']
 
     def get_all_counts(self):
@@ -58,8 +58,21 @@ class IndexVisitType(Index):
         self.visit_types = []
 
     def type_category(self, visit_type, move_types):
-        if move_types in self.causes:
+        if visit_type in move_types:
             return move_types.index(visit_type)
+        else:
+            return -1
+
+
+class IndexVisitTypeMixture(Index):
+    def __init__(self):
+        super().__init__()
+        self.counts = [11, 2, 4, 1, 7]
+        self.visit_types = []
+
+    def type_category(self, visit_type, move_types):
+        if visit_type in move_types:
+            return 0
         else:
             return -1
 
@@ -807,3 +820,132 @@ class Index70(Index):
 
     def age_category(self, age):
         return 0
+
+
+class Index71(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['etc', 'hospital']
+
+
+class Index72(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['restaurant', 'etc']
+
+
+class Index73(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['store', 'hospital']
+
+
+class Index74(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['public_transportation', 'etc']
+
+
+class Index75(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['restaurant', 'hospital']
+
+
+class Index76(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['etc', 'store']
+
+
+class Index77(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['public_transportation', 'hospital']
+
+
+class Index78(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['hospital', 'pharmacy']
+
+
+class Index79(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['restaurant', 'store']
+
+
+class Index80(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['church', 'etc']
+
+
+class Index81(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['public_transportation', 'restaurant']
+
+
+class Index82(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['etc', 'pharmacy']
+
+
+class Index83(IndexVisitTypeMixture):
+    def __init__(self):
+        super().__init__()
+        self.visit_types = ['bakery', 'cafe', 'bar', 'restaurant']
+
+
+class Index84(Index):
+    def __init__(self):
+        super().__init__()
+        self.counts = [11, 2, 4, 1, 7]
+
+    def type_category(self, visit_type, move_types):
+        if visit_type in move_types:
+            return 0
+        else:
+            return -1
+
+
+class Index85(IndexCause):
+    def __init__(self):
+        super().__init__()
+        self.counts = [11, 2, 1, 21, 7]
+        self.causes = ['etc', 'community infection']
+
+    def type_category(self, visit_type, move_types):
+        if visit_type in move_types:
+            return 0
+        else:
+            return -1
+
+
+class Index86(IndexCause):
+    def __init__(self):
+        super().__init__()
+        self.counts = [11, 2, 1, 21, 7]
+        self.causes = ['etc', 'contact with patient']
+
+    def type_category(self, visit_type, move_types):
+        if visit_type in move_types:
+            return 0
+        else:
+            return -1
+
+
+class Index87(IndexCause):
+    def __init__(self):
+        super().__init__()
+        self.counts = [11, 2, 1, 21, 7]
+        self.causes = ['etc', 'overseas inflow']
+
+    def type_category(self, visit_type, move_types):
+        if visit_type in move_types:
+            return 0
+        else:
+            return -1
