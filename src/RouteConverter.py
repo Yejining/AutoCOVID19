@@ -23,13 +23,12 @@ class RouteToIndexConverter:
         for patient in self.route_info.patients:
             self.save_raw_patient_route(path, patient)
 
-    def correlate(self, visit_types, correlation_matrix, sequence=True):
+    def correlate(self, visit_types, correlation_matrix):
         for patient in self.route_info.patients:
-            if sequence: correlation_matrix = self.group_types_by_sequence(patient, visit_types, correlation_matrix)
-            else: correlation_matrix = self.group_types_by_patient(patient, visit_types, correlation_matrix)
+            correlation_matrix = self.group_types(patient, visit_types, correlation_matrix)
         return correlation_matrix
 
-    def group_types_by_sequence(self, patient, visit_types, correlation_matrix):
+    def group_types(self, patient, visit_types, correlation_matrix):
         patient_places = self.route_info.get_places(patient)
         patient_places.sort_values(by=['date'])
 
@@ -47,23 +46,6 @@ class RouteToIndexConverter:
             index2 = visit_types.index(place2['type'].tolist()[0])
             correlation_matrix[index1][index2] += 1
             correlation_matrix[index2][index1] += 1
-
-        return correlation_matrix
-
-    def group_types_by_patient(self, patient, visit_types, correlation_matrix):
-        patient_places = self.route_info.get_places(patient)
-        patient_places = patient_places.drop_duplicates(subset=['type'])
-        print(patient_places)
-        print()
-
-        for i in range(len(patient_places) - 1):
-            place1 = patient_places.iloc[[i]]
-            for j in range(i + 1, len(patient_places)):
-                place2 = patient_places.iloc[[j]]
-                index1 = visit_types.index(place1['type'].tolist()[0])
-                index2 = visit_types.index(place2['type'].tolist()[0])
-                correlation_matrix[index1][index2] += 1
-                correlation_matrix[index2][index1] += 1
 
         return correlation_matrix
 
@@ -110,7 +92,7 @@ class RouteToIndexConverter:
         path = self.path_info.get_accumulated_route_saving_path()
         for patient in self.route_info.patients:
             accumulated_routes = self.accumulate_patient(patient)
-            self.save_accumulated_patient_route(path, patient, accumulated_routes)
+        #     self.save_accumulated_patient_route(path, patient, accumulated_routes)
 
     def convert_complete_route(self):
         path = self.path_info.get_complete_route_saving_path()
@@ -136,7 +118,7 @@ class RouteToIndexConverter:
             patient_date_path = patient_path + "/" + today_str + "/"
             print(patient_date_path)
             Path(patient_date_path).mkdir(parents=True, exist_ok=True)
-            self.indices_save_image(patient_date_path, places_indices)
+            # self.indices_save_image(patient_date_path, places_indices)
             if today == self.route_info.last_day: break
             today += timedelta(days=1)
 
@@ -185,7 +167,7 @@ class RouteToIndexConverter:
         if p_infection_case != -1: p_infection_case += index
         index += self.feature_info.counts[2]
 
-        p_type = self.feature_info.type_category(one_visit['type'], self.feature_info.visit_types)
+        p_type = self.feature_info.type_category(one_visit['type'])
         if p_type != -1: p_type += index
         index += self.feature_info.counts[3]
 
@@ -408,10 +390,10 @@ class RouteToIndexConverter:
             writer.writeheader()
 
     def create_correlation_file(self, visit_types, correlation_matrix):
-        with open('correlation_patient.csv', 'w') as csvfile:
+        with open('correlation.csv', 'w') as csvfile:
             csv_writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n', fieldnames=visit_types)
             csv_writer.writeheader()
-        with open('correlation_patient.csv', 'a+', newline='') as write_obj:
+        with open('correlation.csv', 'a+', newline='') as write_obj:
             csv_writer = writer(write_obj)
             csv_writer.writerows(correlation_matrix)
 

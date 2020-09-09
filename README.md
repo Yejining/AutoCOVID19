@@ -50,3 +50,31 @@
 
 1. 데이터셋
    1. `covid19/README.md`의 링크에서 데이터셋 다운로드
+
+
+
+#### 피처 설명
+
+##### 방문목적지별 방문 개수
+
+- hospital(970)
+- etc(648)
+- public transportation(259)
+- store(217)
+- restuarant(203)
+- pharmacy(75)
+- church(64)
+- cafe(45)
+- airport(28)
+- pc_cafe(24)
+- lodging(24)
+- real_estate_agency(16)
+- bank(11)
+- school(11)
+- bar(9)
+- beuty_salon(6)
+- post_office(5)
+- bakery(6)
+- gym(3)
+- gas_station(3)
+- karaoke(2)

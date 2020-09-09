@@ -19,6 +19,7 @@ class PathInfo:
     statistics_path = 'statistics/'
     diff_path = 'diff/'
     accuracy_path = 'covid_dataset/accuracy/'
+    result_path = 'result.txt'
 
     def __init__(self, index=0, appendix=None):
         self.name = 'covid_dataset/{}/'.format(str(index))
@@ -66,6 +67,9 @@ class PathInfo:
 
     def get_accuracy_name(self):
         return self.get_accuracy_path() + 'accuracy_' + str(self.index) + '.csv'
+
+    def get_result_path(self):
+        return self.name + self.result_path
 
 
 class RouteInfo:

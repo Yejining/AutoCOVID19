@@ -1,8 +1,7 @@
 import sys
 
-from advisor_util import FILE_NAME, TEST_NAME, main
-from main import PROCESS
 from src.Cases import Index, Index4, Index3, Index5, Index69, Index11, Index13, Index83, Index18
+from src.automl.advisor.advisor_util import FILE_NAME, TEST_NAME, main
 from src.process import set_gpu, Process
 
 

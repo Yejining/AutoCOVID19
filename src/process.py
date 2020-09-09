@@ -47,6 +47,8 @@ class Process:
         self.epoch = 0
         self.batch_size = 0
 
+        Path(self.path_info.name).mkdir(parents=True, exist_ok=True)
+
     # save raw csv file into images
     def save_raw_route(self):
         print("saving original route")
@@ -66,14 +68,14 @@ class Process:
         self.X_set, self.y_set = self.converter.get_dataset()
         self.loader.save_dataset(self.path_info.get_dataset_path(), self.X_set, self.y_set, self.route_info.first_day)
 
-    def correlate(self, sequence=True):
+    def correlate(self):
         visit_types = ['karaoke', 'gas_station', 'gym', 'bakery', 'pc_cafe',
                         'beauty_salon', 'school', 'church', 'bank', 'cafe',
                         'bar', 'post_office', 'real_estate_agency', 'lodging',
                         'public_transportation', 'restaurant', 'etc', 'store',
                         'hospital', 'pharmacy', 'airport']
         correlation_matrix = np.zeros((len(visit_types), len(visit_types)))
-        correlation_matrix = self.converter.correlate(visit_types, correlation_matrix, sequence)
+        correlation_matrix = self.converter.correlate(visit_types, correlation_matrix)
         self.converter.create_correlation_file(visit_types, correlation_matrix)
 
     # get dataset(images) from file
@@ -127,7 +129,7 @@ class Process:
 
     def one_cycle(self):
         self.save_raw_route()
-        self.save_route_in_h5()
+        # self.save_route_in_h5()
         self.load_dataset()
         self.train()
         self.predict()
@@ -136,13 +138,15 @@ class Process:
         self.statistic_raw_data()
 
     def train_then_predict(self):
-        self.conv_kernel_size = 3
+        self.model_info.channel = 38
+        self.model_info.n_step = 3
         self.convlstm_kernel_size = 3
+        self.conv_kernel_size = 3
         self.epoch = 300
-        self.batch_size = 1
+        self.batch_size = 16
 
         Path(self.path_info.name).mkdir(parents=True, exist_ok=True)
-        # self.save_route_in_h5()
+        self.save_route_in_h5()
         self.load_dataset()
         self.train()
         self.predict()
@@ -166,6 +170,12 @@ class Process:
         self.load_dataset()
         self.predict()
         self.save_accuracy()
+
+    def predict_from_outside(self, pred):
+        self.pred = pred
+        self.diff1, self.diff2, self.diff3, self.diff4, self.rmse, self.mape, \
+        self.test_max_value, self.pred_max_value, self.rmse_1_added, self.mape_1_added = \
+            self.trainer.get_accuracy(self.pred, self.y_test)
 
 
 def set_gpu():

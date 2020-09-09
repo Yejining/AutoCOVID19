@@ -34,6 +34,7 @@ class Model:
         convlstm_kernel = self.convlstm_kernel_size
         conv_kernel = self.conv_kernel_size
 
+        print(activation, optimizer, loss)
         print("convlstm_kernel, conv_kernel:", convlstm_kernel, conv_kernel)
 
         with K.tf_ops.device('/GPU:0'):
@@ -71,8 +72,12 @@ class Model:
         self.conv_kernel_size = conv_kernel_size
         self.convlstm_kernel_size = convlstm_kernel_size
 
+        print(type(X_train), type(y_train))
+        # print(X_train.shape, y_train.shape, X_eval.shape, y_eval.shape)
+        # print(epoch, batch_size)
+
         seq = self.get_model(size)
-        seq.fit(X_train, y_train, validation_data=(X_eval, y_eval), epochs=epoch, batch_size=batch_size, shuffle='batch')
+        seq.fit(X_train, y_train, validation_data=(X_eval, y_eval), epochs=epoch, batch_size=batch_size)#, shuffle='batch')
         seq.save(self.path_info.name + str(convlstm_kernel_size) + "_" + str(conv_kernel_size) + "_" + str(epoch) +
                  "_" + str(batch_size) + ".h5")
         score = seq.evaluate(X_eval, y_eval)
