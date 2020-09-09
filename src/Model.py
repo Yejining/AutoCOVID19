@@ -63,7 +63,7 @@ class Model:
         batch_size = self.model_info.batch_size
 
         seq = self.get_model(size)
-        seq.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, shuffle='batch')
+        seq.fit(X_train, y_train, validation_split=0.25, nepochs=epochs, batch_size=batch_size, shuffle='batch')
         seq.save(self.path_info.get_model_path())
 
     def get_accuracy(self, pred, y_test):

@@ -18,6 +18,9 @@ def main(index):
 
     name = "12th_"
 
+    process = Process(name + "100th", Index())
+    process.correlate(sequence=False)
+
     # load then save accuracy
     # for i in range(1, 46 + 1):
     #     if i == 1: new_name = name + "1st"
@@ -29,12 +32,12 @@ def main(index):
     #     process.load_then_save_accuracy()
 
     # train then predict
-    for i in range(48, 57 + 1):
-        process = Process(name + str(i) + "th", index[i])
-        process.train_then_predict()
-    for i in range(67, 70 + 1):
-        process = Process(name + str(i) + "th", index[i])
-        process.train_then_predict()
+    # for i in range(48, 57 + 1):
+    #     process = Process(name + str(i) + "th", index[i])
+    #     process.train_then_predict()
+    # for i in range(67, 70 + 1):
+    #     process = Process(name + str(i) + "th", index[i])
+    #     process.train_then_predict()
 
 
 if __name__ == "__main__":
