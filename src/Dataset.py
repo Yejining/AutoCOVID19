@@ -22,25 +22,26 @@ class Dataset:
             set_day = f.create_dataset('start_day', data=day)
 
     def load_data_from_file(self, path):
-        sample_num = self.route_info.duration - (2 * self.model_info.n_step)
-        split_num = self.model_info.set_split_num(sample_num)
-        X_train, y_train, X_test, y_test, start_day1, start_day2 = self.load_data(path, split_num)
+        X_train, y_train, X_eval, y_eval, X_test, y_test, start_day1, start_day2, start_day3 = self.load_data(path)
 
-        return X_train, y_train, X_test, y_test, start_day1, start_day2
+        return X_train, y_train, X_eval, y_eval, X_test, y_test, start_day1, start_day2, start_day3
 
-    def load_data(self, path, n_train):
+    def load_data(self, path):
         print("data load path: ", path)
-        X_train = HDF5Matrix(path, 'X_set', start=0, end=n_train)
-        y_train = HDF5Matrix(path, 'y_set', start=0, end=n_train)
-        X_test = HDF5Matrix(path, 'X_set', start=n_train)
-        y_test = HDF5Matrix(path, 'y_set', start=n_train)
+        X_train = HDF5Matrix(path, 'X_set', start=0, end=53)
+        y_train = HDF5Matrix(path, 'y_set', start=0, end=53)
+        X_eval = HDF5Matrix(path, 'X_set', start=53, end=53+20)
+        y_eval = HDF5Matrix(path, 'y_set', start=53, end=53+20)
+        X_test = HDF5Matrix(path, 'X_set', start=53+20)
+        y_test = HDF5Matrix(path, 'y_set', start=53+20)
 
         start_day = np.array(HDF5Matrix(path, 'start_day'))
         start_day = "%d-%.2d-%.2d" % (start_day[0], start_day[1], start_day[2])
         start_day1 = datetime.strptime(start_day, "%Y-%m-%d")
-        start_day2 = start_day1 + timedelta(days=n_train)
+        start_day2 = start_day1 + timedelta(days=53)
+        start_day3 = start_day1 + timedelta(days=53+20)
 
-        return X_train, y_train, X_test, y_test, start_day1, start_day2
+        return X_train, y_train, X_eval, y_eval, X_test, y_test, start_day1, start_day2, start_day3
 
     def figure_load_data(self, path):
         X_test = HDF5Matrix(path, 'X_set')

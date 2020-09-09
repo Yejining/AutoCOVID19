@@ -1,4 +1,5 @@
 import csv
+import logging
 
 from keras.models import load_model
 import tensorflow as tf
@@ -13,6 +14,7 @@ from src.RouteConverter import RouteToIndexConverter
 
 class Process:
     def __init__(self, name, feature_info):
+        self.name = name
         self.initial_setting(name, feature_info)
 
     def initial_setting(self, name, feature_info):
@@ -25,17 +27,25 @@ class Process:
         self.converter = RouteToIndexConverter(
             self.path_info, self.route_info, self.image_info, self.feature_info, self.model_info)
         self.loader = Dataset(self.route_info, self.model_info)
-        self.trainer = Model(self.model_info, self.path_info, self.route_info, self.feature_info)
+        self.trainer = Model(self.name, self.model_info, self.path_info, self.route_info, self.feature_info)
 
         self.dataset = None
         self.X_train = None
         self.y_train = None
+        self.X_eval = None
+        self.y_eval = None
         self.X_test = None
         self.y_test = None
         self.start_day1 = None
         self.start_day2 = None
+        self.start_day3 = None
         self.model = None
         self.pred = None
+
+        self.conv_kernel_size = 0
+        self.convlstm_kernel_size = 0
+        self.epoch = 0
+        self.batch_size = 0
 
     # save raw csv file into images
     def save_raw_route(self):
@@ -66,15 +76,17 @@ class Process:
         correlation_matrix = self.converter.correlate(visit_types, correlation_matrix, sequence)
         self.converter.create_correlation_file(visit_types, correlation_matrix)
 
-
     # get dataset(images) from file
     def load_dataset(self):
         path = self.path_info.get_dataset_path()
-        self.X_train, self.y_train, self.X_test, self.y_test, self.start_day1, self.start_day2\
+        self.X_train, self.y_train, self.X_eval, self.y_eval, self.X_test, self.y_test, \
+        self.start_day1, self.start_day2, self.start_day3\
             = self.loader.load_data_from_file(path)
 
     def train(self):
-        self.trainer.train(self.X_train, self.y_train, self.image_info.size)
+        score = self.trainer.train(self.conv_kernel_size, self.convlstm_kernel_size, self.epoch, self.batch_size,
+                                   self.X_train, self.y_train, self.X_eval, self.y_eval, self.image_info.size)
+        return score
 
     def predict(self):
         self.model = load_model(self.path_info.get_model_path())
@@ -84,14 +96,14 @@ class Process:
             self.trainer.get_accuracy(self.pred, self.y_test)
 
     def save_accuracy(self):
-        self.converter.save_accuracy(self.start_day2, self.diff1,
+        self.converter.save_accuracy(self.start_day3, self.diff1,
                                      self.rmse, self.mape,
                                      self.test_max_value, self.pred_max_value,
                                      self.rmse_1_added, self.mape_1_added)
 
     def save_prediction(self):
         print(self.X_test.shape, self.y_test.shape, self.pred.shape)
-        self.converter.save_prediction_image(self.X_test, self.y_test, self.pred, self.start_day2,
+        self.converter.save_prediction_image(self.X_test, self.y_test, self.pred, self.start_day3,
                                              self.diff1, self.diff2, self.diff3, self.diff4, self.rmse, self.mape,
                                              self.test_max_value, self.pred_max_value,
                                              self.rmse_1_added, self.mape_1_added)
@@ -124,8 +136,13 @@ class Process:
         self.statistic_raw_data()
 
     def train_then_predict(self):
+        self.conv_kernel_size = 3
+        self.convlstm_kernel_size = 3
+        self.epoch = 300
+        self.batch_size = 1
+
         Path(self.path_info.name).mkdir(parents=True, exist_ok=True)
-        self.save_route_in_h5()
+        # self.save_route_in_h5()
         self.load_dataset()
         self.train()
         self.predict()
@@ -133,12 +150,17 @@ class Process:
         self.save_readme()
         self.statistic_raw_data()
 
-    def load_then_predict(self):
+    def load_then_predict(self, path):
+        Path(self.path_info.name).mkdir(parents=True, exist_ok=True)
         self.load_dataset()
         self.predict()
-        self.save_prediction()
+        self.save_in_h5(path)
+        # self.save_prediction()
         # self.save_readme()
         # self.statistic_raw_data()
+
+    def save_in_h5(self, path):
+        self.converter.save_in_h5(path, self.pred, self.start_day3)
 
     def load_then_save_accuracy(self):
         self.load_dataset()

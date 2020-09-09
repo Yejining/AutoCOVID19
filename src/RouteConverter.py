@@ -4,6 +4,8 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from csv import writer
+
+import h5py
 import numpy as np
 from PIL import Image
 
@@ -387,6 +389,16 @@ class RouteToIndexConverter:
                                     mape_1_added[l_sample][l_feature], rmse_1_added[l_sample][l_feature],
                                     test_max_value[l_sample][l_feature], pred_max_value[l_sample][l_feature]])
             l_first_day += timedelta(days=1)
+
+    def save_in_h5(self, path, pred, start_day):
+        first_day = start_day + timedelta(days=3)
+        print(type(pred))
+        with h5py.File(path, 'w') as f:
+            for l_sample in range(pred.shape[0]):
+                print(datetime.strftime(first_day, "%Y-%m-%d"), pred[l_sample][0][0].shape)
+                print()
+                data = f.create_dataset(datetime.strftime(first_day, "%Y-%m-%d"), data=pred[l_sample][0][0])
+                first_day += timedelta(days=1)
 
     def create_accuracy_file(self):
         Path(self.path_info.get_accuracy_path()).mkdir(parents=True, exist_ok=True)

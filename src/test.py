@@ -1,7 +1,6 @@
-abc = ['a', 'b', 'c']
+from pathlib import Path
 
-if 'd' in abc:
-    a = abc.index('d')
-else:
-    a = 'tt'
-print(a)
+
+patient_date_path = "../covid_dataset/aaa/vvv"
+print(patient_date_path)
+Path(patient_date_path).mkdir(parents=True, exist_ok=True)
