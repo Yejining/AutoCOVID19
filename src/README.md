@@ -73,28 +73,28 @@ src
 
 ``` bash
 AutoCOVID19
-|   main.py
-|   worker_main.py
-|   worker_test.py
-|
+│   main.py
+│   worker_main.py
+│   worker_test.py
+│
 └───src
     │   README.md
-    |   Arguments.py
-    |   Cases.py
-    |   constant.py
-    |   Dataset.py
-    |   Model.py
-    |   process.py
-    |   RouteConverter.py
-    |   test.py
+    │   Arguments.py
+    │   Cases.py
+    │   constant.py
+    │   Dataset.py
+    │   Model.py
+    │   process.py
+    │   RouteConverter.py
+    │   test.py
     │
     └───automl
         └───advisor
-        |   |   advisor_main.py
-        |   |   advisor_util.py
-        |   
+        │   │   advisor_main.py
+        │   │   advisor_util.py
+        │   
         └───hpbandster
-            |   worker.py
+            │   worker.py
 ```
 
 
