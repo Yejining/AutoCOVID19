@@ -92,7 +92,7 @@ class RouteToIndexConverter:
         path = self.path_info.get_accumulated_route_saving_path()
         for patient in self.route_info.patients:
             accumulated_routes = self.accumulate_patient(patient)
-        #     self.save_accumulated_patient_route(path, patient, accumulated_routes)
+            self.save_accumulated_patient_route(path, patient, accumulated_routes)
 
     def convert_complete_route(self):
         path = self.path_info.get_complete_route_saving_path()
@@ -118,7 +118,7 @@ class RouteToIndexConverter:
             patient_date_path = patient_path + "/" + today_str + "/"
             print(patient_date_path)
             Path(patient_date_path).mkdir(parents=True, exist_ok=True)
-            # self.indices_save_image(patient_date_path, places_indices)
+            self.indices_save_image(patient_date_path, places_indices)
             if today == self.route_info.last_day: break
             today += timedelta(days=1)
 
@@ -147,7 +147,7 @@ class RouteToIndexConverter:
         for index in place_indices:
             row = index[5]
             col = index[6]
-            for feature in range(5):
+            for feature in range(4):
                 if feature == -1: continue
                 visit_grid[index[feature]][row][col] += weight
 

@@ -1,11 +1,11 @@
 from src.constant import AGE_MODE, GENDER_MODE, CAUSE_MODE, VISIT_MODE
 
 
-class Index:
+class GeneralCase:
     def __init__(self):
-        self.names = ['age', 'sex', 'infection_case', 'type', 'date']
+        self.names = ['age', 'sex', 'infection_case', 'type']
+        self.counts = [11, 2, 4, 21]
         self.sex = ['male', 'female']
-        self.counts = [11, 2, 4, 21, 0]
         self.visit_types = ['karaoke', 'gas_station', 'gym', 'bakery', 'pc_cafe',
                                 'beauty_salon', 'school', 'church', 'bank', 'cafe',
                                 'bar', 'post_office', 'real_estate_agency', 'lodging',
@@ -33,23 +33,20 @@ class Index:
     def type_category(self, move_types):
         return self.visit_types.index(move_types)
 
-    def day_category(self, day):
-        return -1
 
-
-class IndexAge(Index):
+class AgeFeature(GeneralCase):
     def __init__(self, mode):
         super().__init__()
         self.mode = mode
 
         if mode == AGE_MODE.ALL:
-            self.counts = [11, 2, 4, 21, 0]
+            self.counts = [11, 2, 4, 21]
         elif mode == AGE_MODE.EACH:
-            self.counts = [1, 2, 4, 21, 0]
+            self.counts = [1, 2, 4, 21]
         elif mode == AGE_MODE.DEVELOPMENTAL:
-            self.counts = [5, 2, 4, 21, 0]
+            self.counts = [5, 2, 4, 21]
         elif mode == AGE_MODE.REMOVE:
-            self.counts = [0, 2, 4, 21, 0]
+            self.counts = [0, 2, 4, 21]
 
         self.age = ""
 
@@ -80,17 +77,17 @@ class IndexAge(Index):
             return -1
 
 
-class IndexGender(Index):
+class GenderFeature(GeneralCase):
     def __init__(self, mode):
         super().__init__()
         self.mode = mode
 
         if mode == GENDER_MODE.ALL:
-            self.counts = [11, 2, 4, 21, 0]
+            self.counts = [11, 2, 4, 21]
         elif mode == GENDER_MODE.EACH:
-            self.counts = [11, 1, 4, 21, 0]
+            self.counts = [11, 1, 4, 21]
         elif mode == GENDER_MODE.REMOVE:
-            self.counts = [11, 0, 4, 21, 0]
+            self.counts = [11, 0, 4, 21]
 
         self.sex = ""
 
@@ -109,61 +106,26 @@ class IndexGender(Index):
             return -1
 
 
-class IndexCause(Index):
-    def __init__(self, mode):
-        super().__init__()
-        self.mode = mode
-
-        if mode == CAUSE_MODE.ALL:
-            self.counts = [11, 2, 4, 21, 0]
-        elif mode == CAUSE_MODE.EACH:
-            self.counts = [11, 2, 1, 21, 0]
-        elif mode == CAUSE_MODE.MERGE_THREE:
-            self.counts = [11, 2, 1, 21, 0]
-            self.causes = ['community infection', 'contact with patient', 'overseas inflow']
-        elif mode == CAUSE_MODE.REMOVE:
-            self.counts = [11, 2, 0, 21, 0]
-
-    def infection_case_category(self, infection_case):
-        if self.mode == CAUSE_MODE.ALL:
-            if infection_case in self.causes:
-                return self.causes.index(infection_case)
-            else:
-                return -1
-        elif self.mode == CAUSE_MODE.EACH:
-            if infection_case == self.causes:
-                return 0
-            else:
-                return -1
-        elif self.mode == CAUSE_MODE.MERGE_THREE:
-            if infection_case in self.causes:
-                return 0
-            else:
-                return -1
-        elif self.mode == CAUSE_MODE.REMOVE:
-            return -1
-
-
-class IndexVisitType(Index):
+class VisitFeature(GeneralCase):
     def __init__(self, mode):
         super().__init__()
         self.mode = mode
 
         if mode == VISIT_MODE.ALL:
-            self.counts = [11, 2, 4, 21, 0]
+            self.counts = [11, 2, 4, 21]
         elif mode == VISIT_MODE.EACH:
-            self.counts = [11, 2, 4, 1, 0]
+            self.counts = [11, 2, 4, 1]
         elif mode == VISIT_MODE.HOSPITAL:
-            self.counts = [11, 2, 4, 1, 0]
+            self.counts = [11, 2, 4, 1]
             self.visit_types = ['hospital', 'pharmacy']
         elif mode == VISIT_MODE.TRANSPORTATION:
-            self.counts = [11, 2, 4, 1, 0]
+            self.counts = [11, 2, 4, 1]
             self.visit_types = ['public_transportation', 'airport']
         elif mode == VISIT_MODE.FNB:
-            self.counts = [11, 2, 4, 1, 0]
+            self.counts = [11, 2, 4, 1]
             self.visit_types = ['bakery', 'cafe', 'bar', 'restaurant']
         elif mode == VISIT_MODE.REMOVE:
-            self.counts = [11, 2, 4, 0, 0]
+            self.counts = [11, 2, 4, 0]
 
     def type_category(self, move_types):
         if self.mode == VISIT_MODE.ALL:
@@ -184,4 +146,39 @@ class IndexVisitType(Index):
             else:
                 return -1
         elif self.mode == VISIT_MODE.REMOVE:
+            return -1
+
+
+class CauseFeature(GeneralCase):
+    def __init__(self, mode):
+        super().__init__()
+        self.mode = mode
+
+        if mode == CAUSE_MODE.ALL:
+            self.counts = [11, 2, 4, 21]
+        elif mode == CAUSE_MODE.EACH:
+            self.counts = [11, 2, 1, 21]
+        elif mode == CAUSE_MODE.MERGE_THREE:
+            self.counts = [11, 2, 1, 21]
+            self.causes = ['community infection', 'contact with patient', 'overseas inflow']
+        elif mode == CAUSE_MODE.REMOVE:
+            self.counts = [11, 2, 0, 21]
+
+    def infection_case_category(self, infection_case):
+        if self.mode == CAUSE_MODE.ALL:
+            if infection_case in self.causes:
+                return self.causes.index(infection_case)
+            else:
+                return -1
+        elif self.mode == CAUSE_MODE.EACH:
+            if infection_case == self.causes:
+                return 0
+            else:
+                return -1
+        elif self.mode == CAUSE_MODE.MERGE_THREE:
+            if infection_case in self.causes:
+                return 0
+            else:
+                return -1
+        elif self.mode == CAUSE_MODE.REMOVE:
             return -1
