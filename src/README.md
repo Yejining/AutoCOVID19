@@ -13,13 +13,13 @@ data
 │   │   │   Patient_Route.csv
 │   │  
 │   └───seoul
-│   |   │   ...
-|   |
-|   └───status
-│   |   │   corona_status.html
-|   |
-|   └───...
-|
+│   │   │   ...
+│   │
+│   └───status
+│   │   │   corona_status.html
+│   │
+│   └───...
+│
 └───extracted
     │   MergedRoute.csv
     │   modified_route.csv
@@ -36,8 +36,8 @@ src
 │   README.md    
 │
 └───preprocess
-|   |   parser.py
-|   
+│   │   parser.py
+│   
 └───jupyter notebook
     │   1. github dataset preprocessing.ipynb
     │   2-1. Parsing Route.ipynb
@@ -46,10 +46,10 @@ src
     │   2-4. etc.ipynb
     │   3-1. corona status.ipynb
     │   3-2. 구 ㄱ.ipynb
-    |   3-3. 구 ㄴ-ㅁ.ipynb
+    │   3-3. 구 ㄴ-ㅁ.ipynb
     │   3-4. 구 ㅅ.ipynb
     │   3-5. 구 ㅇ-ㅈ.ipynb
-    |   4. ConvertingCoordToImage.ipynb
+    │   4. ConvertingCoordToImage.ipynb
 ```
 
 

@@ -13,13 +13,13 @@ data
 │   │   │   Patient_Route.csv
 │   │  
 │   └───seoul
-│   |   │   ...
-|   |
-|   └───status
-│   |   │   corona_status.html
-|   |
-|   └───...
-|
+│   │   │   ...
+│   │
+│   └───status
+│   │   │   corona_status.html
+│   │
+│   └───...
+│
 └───extracted
     │   MergedRoute.csv
     │   modified_route.csv
