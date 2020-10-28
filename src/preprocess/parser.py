@@ -1550,7 +1550,7 @@ class YongsanParser1(Parser):
         for table in tables:
             body = table.find('tbody')
             info_tr_list = body.find_all('tr', attrs={'class': 'corona_info'})
-            if len(info_tr_list) is 0:
+            if len(info_tr_list) == 0:
                 info_tr_list = body.find_all('tr', attrs={'class': 'corona_info1'})
             detail_tr_list = body.find_all('tr', attrs={'class': 'coronaV-detail-cell'})
 
@@ -1610,7 +1610,7 @@ class EunpyeongParser1(Parser):
             info_tr = tr_list[index]
             route_tr = tr_list[index + 1]
 
-            if info_tr.get('class') is 'swtr': break
+            if info_tr.get('class') == 'swtr': break
             index += 2
 
             inner_table = route_tr.find('table')
