@@ -41,7 +41,7 @@ class COVIDConvLSTM:
             model = Sequential()
             model.add(ConvLSTM2D(filters=1, kernel_size=(convlstm_kernel, convlstm_kernel), data_format='channels_first',
                                input_shape=(n_step, channel, size, size),
-                               padding='same', return_sequences=True)) #, dtype='float64', autocast=False))
+                               padding='same', return_sequences=True))
             model.add(BatchNormalization())
 
             model.add(ConvLSTM2D(filters=1, kernel_size=(convlstm_kernel, convlstm_kernel), data_format='channels_first',
@@ -92,7 +92,7 @@ class COVIDConvLSTM:
         return model
 
     def get_accuracy(self, true, pred):
-        print('get convlstm accuracy')
+        print('get tools accuracy')
         mape_list = []
         rmse_list = []
 
@@ -148,7 +148,7 @@ class COVIDConvLSTM:
         Path(path).mkdir(parents=True, exist_ok=True)
 
         path = join(path, 'accuracy.json')
-        print('save convlstm accuracy to %s' % path)
+        print('save tools accuracy to %s' % path)
         with open(path, 'w') as f:
             json.dump(accuracy, f)
 
@@ -158,6 +158,7 @@ def generate_and_save_dataset(args, feature_type, feature_list):
     setattr(args, 'feature_type', feature_type)
 
     for feature_name in feature_list:
+        if feature_name == 'downtown' or feature_name == 'northeast': continue
         setattr(args, 'name', feature_name)
         setattr(args, 'feature_name', feature_name)
         print('generate dataset of %s' % feature_name)
@@ -204,14 +205,13 @@ def train_and_predict(args, feature_type, feature_list):
     setattr(args, 'feature_type', feature_type)
 
     for feature_name in feature_list:
-        if feature_type == 'city' and feature_name == 'downtown': continue
-        if feature_type == 'city' and feature_name == 'northeast': continue
-        setattr(args, 'name', feature_name)
+        setattr(args, 'name', '%s_removal' % feature_type)
         setattr(args, 'feature_name', feature_name)
         print('convolution process on %s' % feature_name)
 
         loader = Dataset(args)
         channel = loader.get_channel_length()
+        print('channel: %d' % channel)
         setattr(args, 'channel', channel)
 
         print('load dataset')
@@ -244,9 +244,10 @@ def train_and_predict(args, feature_type, feature_list):
         with open(join(path, 'args.json'), 'w') as f:
             json.dump(args_dict, f)
 
+        break
 
-def save_all_accuracy(args):
-    feature_types = ['one', 'all', 'city', 'type', 'reason']
+
+def save_all_accuracy(args, feature_types):
     result_df = pd.DataFrame()
 
     for feature in feature_types:
@@ -273,7 +274,7 @@ if __name__ == '__main__':
     args.root = Path(os.getcwd())
 
     # ========== Test ========== #
-    # args.model_type = 'convlstm'
+    args.model_type = 'tools'
     args.is_logged = True
 
     # ========== Dataset ========== #
@@ -295,13 +296,13 @@ if __name__ == '__main__':
 
     # ========== Model ========== #
     args.n_step = 3
-    # args.epochs = 300
-    # args.batch_size = 16
-    # args.activation = 'relu'
-    # args.optimizer = 'rmsprop'
-    # args.loss = 'mean_squared_error'
-    # args.convlstm_kernel = 3
-    # args.conv_kernel = 3
+    args.epochs = 300
+    args.batch_size = 16
+    args.activation = 'relu'
+    args.optimizer = 'rmsprop'
+    args.loss = 'mean_squared_error'
+    args.convlstm_kernel = 3
+    args.conv_kernel = 3
 
     # ========== Code ========== #
     setattr(args, 'feature_type', 'all')
@@ -314,14 +315,15 @@ if __name__ == '__main__':
 
     # generate_and_save_dataset(args, 'one', ['one'])
     # generate_and_save_dataset(args, 'all', ['all'])
-    generate_and_save_dataset(args, 'city', city_features)
-    generate_and_save_dataset(args, 'type', type_features)
-    generate_and_save_dataset(args, 'reason', reason_features)
+    # generate_and_save_dataset(args, 'city', city_features)
+    # generate_and_save_dataset(args, 'type', type_features)
+    # generate_and_save_dataset(args, 'reason', reason_features)
 
     # train_and_predict(args, 'one', ['one'])
     # train_and_predict(args, 'all', ['all'])
     # train_and_predict(args, 'city', city_features)
     # train_and_predict(args, 'type', type_features)
-    # train_and_predict(args, 'reason', reason_features)
+    train_and_predict(args, 'reason', reason_features)
 
-    # save_all_accuracy(args)
+    feature_types = ['city', 'type', 'reason']
+    save_all_accuracy(args, feature_types)
