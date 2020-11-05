@@ -20,8 +20,8 @@ from keras.layers.convolutional import Conv3D
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional_recurrent import ConvLSTM2D
 
-from image import ImageGenerator
-from loader import Dataset
+from autocovid.tools.image import ImageGenerator
+from autocovid.tools.loader import Dataset
 
 logging.basicConfig(level=logging.DEBUG)
 

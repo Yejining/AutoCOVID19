@@ -19,8 +19,8 @@ from keras.layers.convolutional import Conv3D
 from keras.layers.normalization import BatchNormalization
 from keras.layers.convolutional_recurrent import ConvLSTM2D
 
-from loader import Dataset
-from image import ImageGenerator
+from autocovid.tools.loader import Dataset
+from autocovid.tools.image import ImageGenerator
 
 
 class COVIDConvLSTM:
@@ -251,7 +251,8 @@ def save_all_accuracy(args, feature_types):
     result_df = pd.DataFrame()
 
     for feature in feature_types:
-        dir_path = join(args.root, 'results', feature)
+        feature_level = 'feature_level_%d' % args.feature_level
+        dir_path = join(args.root, 'results', args.model_type, feature_level, feature)
         sub_dir_list = [sub_dir for sub_dir in os.listdir(dir_path)]
         for sub_dir in sub_dir_list:
             accuracy_path = join(dir_path, sub_dir, 'accuracy.json')
@@ -274,7 +275,7 @@ if __name__ == '__main__':
     args.root = Path(os.getcwd())
 
     # ========== Test ========== #
-    args.model_type = 'tools'
+    args.model_type = 'convlstm'
     args.is_logged = True
 
     # ========== Dataset ========== #

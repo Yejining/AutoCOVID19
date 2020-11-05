@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from autocovid.preprocess.api import GeoCoder
 
 from autocovid.preprocess.parser import Parser
