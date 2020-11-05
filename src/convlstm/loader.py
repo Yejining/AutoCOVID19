@@ -82,7 +82,8 @@ class Dataset:
             self.route_df.loc[index, 'infection_case'] = reason_row[self.reason_column]
 
         if self.args.is_logged:
-            path = join(self.args.root, 'dataset', self.args.feature_type, self.args.name)
+            feature_level = 'feature_level_%d' % self.args.feature_depth
+            path = join(self.args.root, 'dataset', feature_level, self.args.feature_type, self.args.name)
             Path(path).mkdir(parents=True, exist_ok=True)
 
             print('saving feature depth tuned dataset')
