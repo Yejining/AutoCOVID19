@@ -6,8 +6,13 @@ from datetime import datetime, timedelta
 
 
 class Dataset:
-    def __init__(self, args):
+    def __init__(self, args, feature_type, feature_name, city_depth=None, type_depth=None, reason_depth=None):
         self.args = args
+        self.feature_type = feature_type
+        self.feature_name = feature_name
+        self.city_depth = city_depth
+        self.type_depth = type_depth
+        self.reason_depth = reason_depth
 
         print('initialize dataset class')
         extracted_path = join(self.args.root, 'data', 'extracted')
@@ -37,9 +42,12 @@ class Dataset:
         self.reason_column_df = pd.read_csv(join(column_path, 'infection_case_column.csv'))
 
         print('set feature lists by type')
-        self.city_column = self.city_column_df.columns[self.args.feature_depth]
-        self.type_column = self.type_column_df.columns[self.args.feature_depth]
-        self.reason_column = self.reason_column_df.columns[self.args.feature_depth]
+        city_depth = self.args.general_depth if self.city_depth is None else self.city_depth
+        self.city_column = self.city_column_df.columns[city_depth]
+        type_depth = self.args.general_depth if self.type_depth is None else self.type_depth
+        self.type_column = self.type_column_df.columns[type_depth]
+        reason_depth = self.args.general_depth if self.reason_depth is None else self.reason_depth
+        self.reason_column = self.reason_column_df.columns[reason_depth]
 
         unique_city = self.get_unique_values(self.city_column_df, self.city_column)
         unique_type = self.get_unique_values(self.type_column_df, self.type_column)
@@ -49,25 +57,31 @@ class Dataset:
         self.type_features = unique_type[self.type_column].to_list()
         self.reason_features = unique_reason[self.reason_column].to_list()
 
-        print('feature type: %s' % self.args.feature_type)
-        if self.args.feature_depth == 1:
-            if self.args.feature_type == 'city':
-                self.city_features = [self.args.feature_name]
-            elif self.args.feature_type == 'type':
-                self.type_features = [self.args.feature_name]
-            elif self.args.feature_type == 'reason':
-                self.reason_features = [self.args.feature_name]
+        print('feature type: %s' % self.feature_type)
+        # select one feature of selected feature type
+        if (self.args.feature_depth == 1 or self.args.feature_depth >= 3) and self.feature_name != 'all':
+            if self.feature_type == 'city':
+                self.city_features = [self.feature_name]
+            elif self.feature_type == 'type':
+                self.type_features = [self.feature_name]
+            elif self.feature_type == 'reason':
+                self.reason_features = [self.feature_name]
+        # remove all features of selected feature type
         elif self.args.feature_depth == 2:
-            if self.args.feature_type == 'city':
+            if self.feature_type == 'city':
                 self.city_features = []
-            elif self.args.feature_type == 'type':
+            elif self.feature_type == 'type':
                 self.type_features = []
-            elif self.args.feature_type == 'reason':
+            elif self.feature_type == 'reason':
                 self.reason_features = []
 
         setattr(self.args, 'city_features', self.city_features)
         setattr(self.args, 'type_features', self.type_features)
         setattr(self.args, 'reason_features', self.reason_features)
+
+        print('city_features: %s' % self.city_features)
+        print('type_features: %s' % self.type_features)
+        print('reason_features: %s' % self.reason_features)
 
     def _tune_feature_depth(self):
         print('tune feature depth')
@@ -83,7 +97,7 @@ class Dataset:
 
         if self.args.is_logged:
             feature_level = 'feature_level_%d' % self.args.feature_depth
-            path = join(self.args.root, 'dataset', feature_level, self.args.feature_type, self.args.name)
+            path = join(self.args.root, 'dataset', feature_level, self.feature_type, self.args.name)
             Path(path).mkdir(parents=True, exist_ok=True)
 
             print('saving feature depth tuned dataset')
@@ -108,7 +122,7 @@ class Dataset:
 
         if self.args.is_logged:
             feature_level = 'feature_level_%d' % self.args.feature_depth
-            path = join(self.args.root, 'dataset', feature_level, self.args.feature_type, self.args.name)
+            path = join(self.args.root, 'dataset', feature_level, self.feature_type, self.args.name)
             Path(path).mkdir(parents=True, exist_ok=True)
 
             print('saving train_df, val_df, test_df')
@@ -137,7 +151,7 @@ class Dataset:
 
         if self.args.is_logged:
             feature_level = 'feature_level_%d' % self.args.feature_depth
-            path = join(self.args.root, 'dataset', feature_level, self.args.feature_type, self.args.name)
+            path = join(self.args.root, 'dataset', feature_level, self.feature_type, self.args.name)
             Path(path).mkdir(parents=True, exist_ok=True)
 
             print('saving accumulated %s set' % name)
@@ -152,7 +166,7 @@ class Dataset:
         return dataset
 
     def get_channel_length(self):
-        if self.args.feature_type == 'one': return 1
+        if self.feature_type == 'one': return 1
 
         channel_len = len(self.city_features) + len(self.type_features) + len(self.reason_features)
         return channel_len

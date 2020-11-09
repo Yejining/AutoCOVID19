@@ -1,64 +1,64 @@
-﻿infection_case,infection_case_1,infection_case_2
-overseas inflow,overseas,overseas
-contact with patient,contact,contact
-Seongdong-gu APT,building,building
-etc,other,other
-Eunpyeong St. Mary's Hospital,hospital,hospital
-Shincheonji Church,church,church
-Dongan Church,church,church
-Guro-gu Call Center,call_center,call_center
-Onchun Church,church,church
-Suyeong-gu Kindergarten,educational_facility,educational_facility
-Ministry of Oceans and Fisheries,public_institution,public_institution
-gym facility in Cheonan,health_facility,health_facility
-Itaewon Club,club,club
-unknown,other,other
-Samsung Seoul Hospital,hospital,hospital
-Original Language Bible Study Group,church,church
-Buchen-si Coopang,logistics_center,logistics_center
-Group infection in Guri-si,other,other
-Dongin Church in Gangnam-gu,church,church
-KB Life Insurance,insurance,insurance
-Campus Crusade for Christ,church,church
-Academy in Yeondeungpo,educational_facility,educational_facility
-Yeonana News Class,educational_facility,educational_facility
-Church Extension around Metropolitan area,church,church
-Church Extension around Incheon,church,church
-Family in Seocho-gu,family,family
-Paster in Anyang and Gunpo,church,church
-Samsung Fire Insurance,insurance,insurance
-Richway,network_marketing,network_marketing
-Brothers in Yongin,family,family
-Health facility in Yangcheon,health_facility,health_facility
-SJ Investment Company,company,company
-Nursing Facility,nursing_facility,nursing_facility
-Kkumkkuneun Presbyterian Church in Daejeon,church,church
-Rice Swipper company in Geumcheon-gu,company,company
-Daejayeon Korea,network_marketing,network_marketing
-City Hall Station,public_transportation,public_transportation
-Wangsung Church,church,church
-Yeoksam-dong meeting,gethering,gethering
-Gangnam-gu office,office,office
-Bank in Gangname,bank,bank
-Finantial company in Gangnam,company,company
-V building in Gangnam,building,building
-Lotteria,gethering,gethering
-Sarangjeil Church in Seongbuk-gu,church,church
-Hyehwa police office,public_institution,public_institution
-Cafe in Gangnam-gu,cafe,cafe
-Dongdaemoon,other,other
-Theater San,theater,theater
-Sungbuk-gu Physical Education,educational_facility,educational_facility
-Mapo-gu Call Center,call_center,call_center
-Woorijeil Church in Youngin,church,church
-Gwonneung Church in Yeongdeungpo,church,church
-Doesaegim Church,church,church
-8.15 Seoul Protest,protest,protest
-Seodaemoon-gu gethering,gethering,gethering
-Hairkok in Eunpyeong-gu,other,other
-Yoido Full Gospel Church,church,church
-Missionary Group,church,church
-Jung-gu Insuarance Company,insurance,insurance
-Bible study in Eunpyeong-gu,church,church
-Songpa-gu gethering,gethering,gethering
-Health facility in Jungnang,health_facility,health_facility
+﻿infection_case,infection_case_1,infection_case_2,infection_case_3,infection_case_4,infection_case_5,infection_case_6,infection_case_7
+overseas inflow,overseas,overseas,group,overseas,overseas,overseas,overseas
+contact with patient,contact,contact,group,group,contact,contact,group
+Seongdong-gu APT,building,building,building,building,building,building,building
+etc,other,other,group,group,other,group,other
+Eunpyeong St. Mary's Hospital,hospital,hospital,hospital,hospital,hospital,hospital,hospital
+Shincheonji Church,church,church,group,group,group,group,church
+Dongan Church,church,church,group,group,group,group,church
+Guro-gu Call Center,call_center,call_center,call_center,call_center,call_center,call_center,call_center
+Onchun Church,church,church,group,group,group,group,church
+Suyeong-gu Kindergarten,educational_facility,educational_facility,educational_facility,educational_facility,educational_facility,group,educational_facility
+Ministry of Oceans and Fisheries,public_institution,public_institution,public_institution,public_institution,public_institution,group,public_institution
+gym facility in Cheonan,health_facility,health_facility,health_facility,health_facility,health_facility,health_facility,health_facility
+Itaewon Club,club,club,club,club,club,club,club
+unknown,other,other,group,group,other,group,other
+Samsung Seoul Hospital,hospital,hospital,hospital,hospital,hospital,hospital,hospital
+Original Language Bible Study Group,church,church,group,group,group,group,church
+Buchen-si Coopang,logistics_center,logistics_center,logistics_center,logistics_center,logistics_center,logistics_center,logistics_center
+Group infection in Guri-si,other,other,group,group,other,group,other
+Dongin Church in Gangnam-gu,church,church,group,group,group,group,church
+KB Life Insurance,insurance,insurance,insurance,insurance,insurance,insurance,insurance
+Campus Crusade for Christ,church,church,group,group,group,group,church
+Academy in Yeondeungpo,educational_facility,educational_facility,educational_facility,educational_facility,educational_facility,group,educational_facility
+Yeonana News Class,educational_facility,educational_facility,educational_facility,educational_facility,educational_facility,group,educational_facility
+Church Extension around Metropolitan area,church,church,group,group,group,group,church
+Church Extension around Incheon,church,church,group,group,group,group,church
+Family in Seocho-gu,family,family,family,family,family,family,group
+Paster in Anyang and Gunpo,church,church,group,group,group,group,church
+Samsung Fire Insurance,insurance,insurance,insurance,insurance,insurance,insurance,insurance
+Richway,network_marketing,network_marketing,network_marketing,network_marketing,network_marketing,network_marketing,network_marketing
+Brothers in Yongin,family,family,family,family,family,family,group
+Health facility in Yangcheon,health_facility,health_facility,health_facility,health_facility,health_facility,health_facility,health_facility
+SJ Investment Company,company,company,company,company,company,company,company
+Nursing Facility,nursing_facility,nursing_facility,nursing_facility,nursing_facility,nursing_facility,nursing_facility,nursing_facility
+Kkumkkuneun Presbyterian Church in Daejeon,church,church,group,group,group,group,church
+Rice Swipper company in Geumcheon-gu,company,company,company,company,company,company,company
+Daejayeon Korea,network_marketing,network_marketing,network_marketing,network_marketing,network_marketing,network_marketing,network_marketing
+City Hall Station,public_transportation,public_transportation,public_transportation,public_transportation,public_transportation,public_transportation,group
+Wangsung Church,church,church,group,group,group,group,church
+Yeoksam-dong meeting,gethering,gethering,gethering,group,group,gethering,gethering
+Gangnam-gu office,office,office,office,office,group,office,office
+Bank in Gangname,bank,bank,bank,bank,group,bank,bank
+Finantial company in Gangnam,company,company,company,company,company,company,company
+V building in Gangnam,building,building,building,building,building,building,building
+Lotteria,gethering,gethering,gethering,group,group,gethering,gethering
+Sarangjeil Church in Seongbuk-gu,church,church,group,group,group,group,church
+Hyehwa police office,public_institution,public_institution,public_institution,public_institution,public_institution,group,church
+Cafe in Gangnam-gu,cafe,cafe,cafe,cafe,group,cafe,group
+Dongdaemoon,other,other,group,group,other,group,other
+Theater San,theater,theater,group,theater,theater,group,group
+Sungbuk-gu Physical Education,educational_facility,educational_facility,educational_facility,educational_facility,educational_facility,group,educational_facility
+Mapo-gu Call Center,call_center,call_center,call_center,call_center,call_center,call_center,call_center
+Woorijeil Church in Youngin,church,church,group,group,group,group,church
+Gwonneung Church in Yeongdeungpo,church,church,group,group,group,group,church
+Doesaegim Church,church,church,group,group,group,group,church
+8.15 Seoul Protest,protest,protest,group,group,protest,group,protest
+Seodaemoon-gu gethering,gethering,gethering,gethering,group,group,gethering,gethering
+Hairkok in Eunpyeong-gu,other,other,group,group,other,group,other
+Yoido Full Gospel Church,church,church,group,group,group,group,church
+Missionary Group,church,church,group,group,group,group,church
+Jung-gu Insuarance Company,insurance,insurance,insurance,insurance,insurance,insurance,insurance
+Bible study in Eunpyeong-gu,church,church,group,group,group,group,church
+Songpa-gu gethering,gethering,gethering,gethering,group,group,gethering,gethering
+Health facility in Jungnang,health_facility,health_facility,health_facility,health_facility,health_facility,health_facility,health_facility

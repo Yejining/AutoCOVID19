@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+from os import listdir
 from PIL import Image
 from math import sqrt
 from pathlib import Path
@@ -158,12 +159,12 @@ def generate_and_save_dataset(args, feature_type, feature_list):
     setattr(args, 'feature_type', feature_type)
 
     for feature_name in feature_list:
-        if feature_name == 'downtown' or feature_name == 'northeast': continue
+        if feature_name != 'group': continue
         setattr(args, 'name', feature_name)
         setattr(args, 'feature_name', feature_name)
         print('generate dataset of %s' % feature_name)
 
-        loader = Dataset(args)
+        loader = Dataset(args, feature_type, feature_name)
         dataset = loader.load_dataset()
         train_df = dataset['train']
         val_df = dataset['val']
@@ -175,17 +176,18 @@ def generate_and_save_dataset(args, feature_type, feature_list):
         val_set = image_generator.get_image_dataset(val_df)
         test_set = image_generator.get_image_dataset(test_df)
 
-        train_set = image_generator.fit_normalize(train_set)
-        val_set = image_generator.normalize(val_set)
-        test_set = image_generator.normalize(test_set)
+        dataset_list = image_generator.normalize([train_set, val_set, test_set])
+        train_set = dataset_list[0]
+        val_set = dataset_list[1]
+        test_set = dataset_list[2]
 
         image_generator.save_image_dataset(train_set, 'train')
         image_generator.save_image_dataset(val_set, 'val')
         image_generator.save_image_dataset(test_set, 'test')
 
-        image_generator.save_images(train_set, 'train')
-        image_generator.save_images(val_set, 'val')
-        image_generator.save_images(test_set, 'test')
+        # image_generator.save_images(train_set, 'train')
+        # image_generator.save_images(val_set, 'val')
+        # image_generator.save_images(test_set, 'test')
 
         if args.is_logged:
             feature_level = 'feature_level_%d' % args.feature_depth
@@ -200,16 +202,16 @@ def generate_and_save_dataset(args, feature_type, feature_list):
                 json.dump(args_dict, f)
 
 
-def train_and_predict(args, feature_type, feature_list):
+def train_and_predict(args, feature_type, feature_list, city_depth=None, type_depth=None, reason_depth=None):
     print('train and predict dataset of %s' % feature_type)
     setattr(args, 'feature_type', feature_type)
 
     for feature_name in feature_list:
-        setattr(args, 'name', '%s_removal' % feature_type)
+        setattr(args, 'name', feature_name)
         setattr(args, 'feature_name', feature_name)
         print('convolution process on %s' % feature_name)
 
-        loader = Dataset(args)
+        loader = Dataset(args, feature_type, feature_name, city_depth, type_depth, reason_depth)
         channel = loader.get_channel_length()
         print('channel: %d' % channel)
         setattr(args, 'channel', channel)
@@ -244,14 +246,51 @@ def train_and_predict(args, feature_type, feature_list):
         with open(join(path, 'args.json'), 'w') as f:
             json.dump(args_dict, f)
 
-        break
+
+def abc(args):
+    print('convolution process on %s' % args.name)
+
+    loader = Dataset(args)
+    channel = loader.get_channel_length()
+    print('channel: %d' % channel)
+    setattr(args, 'channel', channel)
+
+    print('load dataset')
+    image_generator = ImageGenerator(args)
+
+    train_set, val_set, test_set = image_generator.load_image_dataset()
+    dataset = {'train': train_set, 'val': val_set}
+
+    trainer = COVIDConvLSTM(args)
+    print('train model')
+    trained_model = trainer.train(dataset)
+
+    print('predict')
+    prediction = trained_model.predict(test_set['x_set'])
+    trainer.save_prediction_in_h5(test_set['y_set'], prediction)
+
+    print('get accuracy')
+    accuracy = trainer.get_accuracy(test_set['y_set'], prediction)
+    trainer.save_accuracy(accuracy)
+
+    print('saving arguments')
+    feature_level = 'feature_level_%d' % args.feature_depth
+    path = join(args.root, 'results', args.model_type, feature_level, args.feature_type, args.name)
+    Path(path).mkdir(parents=True, exist_ok=True)
+
+    args_dict = dict()
+    for arg in vars(args):
+        args_dict.update({arg: str(getattr(args, arg))})
+
+    with open(join(path, 'args.json'), 'w') as f:
+        json.dump(args_dict, f)
 
 
 def save_all_accuracy(args, feature_types):
     result_df = pd.DataFrame()
 
     for feature in feature_types:
-        feature_level = 'feature_level_%d' % args.feature_level
+        feature_level = 'feature_level_%d' % args.feature_depth
         dir_path = join(args.root, 'results', args.model_type, feature_level, feature)
         sub_dir_list = [sub_dir for sub_dir in os.listdir(dir_path)]
         for sub_dir in sub_dir_list:
@@ -261,6 +300,8 @@ def save_all_accuracy(args, feature_types):
             rmse = accuracy.loc['rmse'].iloc[0]
             accuracy_dict = {'name': '%s_%s' % (feature, sub_dir), 'mape': mape, 'rmse': rmse}
             result_df = result_df.append(accuracy_dict, ignore_index=True)
+
+    result_df = result_df.set_index(['name'])
 
     feature_level = 'feature_level_%d' % args.feature_depth
     result_path = join(args.root, 'results', args.model_type, feature_level, 'accuracy.csv')
@@ -276,7 +317,7 @@ if __name__ == '__main__':
 
     # ========== Test ========== #
     args.model_type = 'convlstm'
-    args.is_logged = True
+    args.is_logged = False
 
     # ========== Dataset ========== #
     args.train_start = '2020-01-22'
@@ -288,7 +329,8 @@ if __name__ == '__main__':
     args.accumulating_days = 3
 
     # ========== Feature ========== #
-    args.feature_depth = 2
+    # args.feature_depth = 1
+    args.general_depth = 1
 
     # ========== Image ========== #
     args.size = 256
@@ -306,25 +348,66 @@ if __name__ == '__main__':
     args.conv_kernel = 3
 
     # ========== Code ========== #
-    setattr(args, 'feature_type', 'all')
-    setattr(args, 'feature_name', 'all')
+    # generate dataset
+    # feature_depth_list = [3, 4, 5, 6]
+    # for depth in feature_depth_list:
+    #     print(depth)
+    #     setattr(args, 'type_depth', depth)
+    #     setattr(args, 'feature_depth', depth)
+    #
+    #     loader = Dataset(args, 'all', 'all')
+    #     type_features = loader.type_features
+    #     print('type_features: %s' % type_features)
+    #     generate_and_save_dataset(args, 'type', type_features)
+    #     print()
 
-    loader = Dataset(args)
-    city_features = loader.city_features
-    type_features = loader.type_features
-    reason_features = loader.reason_features
+    # feature_depth_list = [3, 4, 5, 6, 7]
+    # for depth in feature_depth_list:
+    #     print(depth)
+    #     setattr(args, 'reason_depth', depth)
+    #     setattr(args, 'feature_depth', depth)
+    #
+    #     loader = Dataset(args, 'all', 'all')
+    #     reason_features = loader.reason_features
+    #     print('reason_features: %s' % reason_features)
+    #     generate_and_save_dataset(args, 'reason', reason_features)
+    #     print()
 
-    # generate_and_save_dataset(args, 'one', ['one'])
-    # generate_and_save_dataset(args, 'all', ['all'])
-    # generate_and_save_dataset(args, 'city', city_features)
-    # generate_and_save_dataset(args, 'type', type_features)
-    # generate_and_save_dataset(args, 'reason', reason_features)
+    feature_depth_list = [3, 4, 5, 6]
+    for depth in feature_depth_list:
+        print(depth)
+        setattr(args, 'type_depth', depth)
+        setattr(args, 'feature_depth', depth)
 
-    # train_and_predict(args, 'one', ['one'])
-    # train_and_predict(args, 'all', ['all'])
-    # train_and_predict(args, 'city', city_features)
-    # train_and_predict(args, 'type', type_features)
-    train_and_predict(args, 'reason', reason_features)
+        result_df = pd.DataFrame()
+        dir_path = join(args.root, 'dataset', 'feature_level_%d' % depth, 'type')
+        sub_dirs = [sub for sub in listdir(dir_path) if isdir(join(dir_path, sub))]
+        print(sub_dirs)
+        train_and_predict(args, 'type', sub_dirs, type_depth=depth)
+        # for sub_dir in sub_dirs:
+        #     accuracy_path = join(dir_path, sub_dir, 'accuracy.json')
+        #     accuracy = pd.read_json(accuracy_path, orient='index')
+        #     mape = accuracy.loc['mape'].iloc[0]
+        #     rmse = accuracy.loc['rmse'].iloc[0]
+        #     accuracy_dict = {'name': 'city_%s' % sub_dir, 'mape': mape, 'rmse': rmse}
+        #     result_df = result_df.append(accuracy_dict, ignore_index=True)
+        #
+        # result_df = result_df.set_index(['name'])
+        #
+        # feature_level = 'feature_level_%d' % args.feature_depth
+        # result_path = join(args.root, 'results', 'convlstm', feature_level, 'accuracy.csv')
+        # result_df.to_csv(result_path, encoding='utf-8-sig')
 
-    feature_types = ['city', 'type', 'reason']
-    save_all_accuracy(args, feature_types)
+    delattr(args, 'type_depth')
+
+    feature_depth_list = [3, 4, 5, 6, 7]
+    for depth in feature_depth_list:
+        print(depth)
+        setattr(args, 'reason_depth', depth)
+        setattr(args, 'feature_depth', depth)
+
+        result_df = pd.DataFrame()
+        dir_path = join(args.root, 'dataset', 'feature_level_%d' % depth, 'reason')
+        sub_dirs = [sub for sub in listdir(dir_path) if isdir(join(dir_path, sub))]
+        print(sub_dirs)
+        train_and_predict(args, 'reason', sub_dirs, reason_depth=depth)

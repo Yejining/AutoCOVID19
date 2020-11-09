@@ -11,8 +11,6 @@ import numpy as np
 class ImageGenerator:
     def __init__(self, args):
         self.args = args
-        self.x_max = 0
-        self.y_max = 0
 
     def get_image_dataset(self, route_df):
         print('get image dataset with given dataframe')
@@ -105,35 +103,32 @@ class ImageGenerator:
 
         return train_set, val_set, test_set
 
-    def fit_normalize(self, dataset):
-        x_set = dataset['x_set'] # sample, n_step, channel, size, size
-        y_set = dataset['y_set'] # sample, size, size
+    def normalize(self, dataset_list):
+        x_max = 0
+        y_max = 0
 
-        self.x_max = np.max(x_set)
-        self.y_max = np.max(y_set)
+        for dataset in dataset_list:
+            x_set = dataset['x_set']
+            y_set = dataset['y_set']
 
-        setattr(self.args, 'x_max', self.x_max)
-        setattr(self.args, 'y_max', self.y_max)
+            x_max = np.max(x_set) if np.max(x_set) > x_max else x_max
+            y_max = np.max(y_set) if np.max(y_set) > y_max else y_max
 
-        x_normalized = self._normalize_x(x_set)
-        y_normalized = self._normalize_y(y_set)
+        setattr(self.args, 'x_max', x_max)
+        setattr(self.args, 'y_max', y_max)
 
-        result = {'x_set': x_normalized, 'y_set': y_normalized,
-                  'start_date': dataset['start_date'], 'end_date': dataset['end_date']}
+        result_list = []
+        for dataset in dataset_list:
+            normalized_x = self._normalize_x(dataset['x_set'])
+            normalized_y = self._normalize_y(dataset['y_set'])
+            result = {'x_set': normalized_x, 'y_set': normalized_y,
+                      'start_date': dataset['start_date'], 'end_date': dataset['end_date']}
+            result_list.append(result)
 
-        return result
-
-    def normalize(self, dataset):
-        x_normalized = self._normalize_x(dataset['x_set'])
-        y_normalized = self._normalize_y(dataset['y_set'])
-
-        result = {'x_set': x_normalized, 'y_set': y_normalized,
-                  'start_date': dataset['start_date'], 'end_date': dataset['end_date']}
-
-        return result
+        return result_list
 
     def _normalize(self, array, data_type):
-        max_value = self.x_max if data_type == 'x' else self.y_max
+        max_value = self.args.x_max if data_type == 'x' else self.args.y_max
         divided_by_max = array / max_value
         normalized = divided_by_max * 255
         return normalized
