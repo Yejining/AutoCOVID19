@@ -3,6 +3,7 @@ from os.path import join
 from pathlib import Path
 from PIL import Image
 
+import json
 import h5py
 import math
 import numpy as np
@@ -11,6 +12,31 @@ import numpy as np
 class ImageGenerator:
     def __init__(self, args):
         self.args = args
+
+    def generate_and_save_dataset(self, route_dict):
+        train_set = self.get_image_dataset(route_dict['train'])
+        val_set = self.get_image_dataset(route_dict['val'])
+        test_set = self.get_image_dataset(route_dict['test'])
+
+        dataset_list = self.normalize([train_set, val_set, test_set])
+        self.save_image_dataset(dataset_list[0], 'train')
+        self.save_image_dataset(dataset_list[1], 'val')
+        self.save_image_dataset(dataset_list[2], 'test')
+
+        if self.args.is_logged:
+            feature_level = 'feature_level_%d' % self.args.feature_depth
+            path = join(self.args.root, 'dataset', feature_level,
+                        self.args.feature_type, self.args.name)
+            Path(path).mkdir(parents=True, exist_ok=True)
+
+            args_dict = dict()
+            for arg in vars(self.args):
+                args_dict.update({arg: str(getattr(self.args, arg))})
+
+            with open(join(path, 'args.json'), 'w') as f:
+                json.dump(args_dict, f)
+
+        return dataset_list
 
     def get_image_dataset(self, route_df):
         print('get image dataset with given dataframe')
@@ -152,8 +178,8 @@ class ImageGenerator:
     def _load_single_dataset(self, name):
         print('load %s dataset' % name)
         feature_level = 'feature_level_%d' % self.args.feature_depth
-        path = join(self.args.root, 'dataset', feature_level, self.args.feature_type,
-                    self.args.name, 'dataset')
+        path = join(self.args.root, 'dataset', self.args.model_type, feature_level,
+                    self.args.feature_type, self.args.name, 'dataset')
 
         f = h5py.File(join(path, '%s.h5' % name), 'r')
         x_set = f['x_%s' % name]

@@ -97,7 +97,8 @@ class Dataset:
 
         if self.args.is_logged:
             feature_level = 'feature_level_%d' % self.args.feature_depth
-            path = join(self.args.root, 'dataset', feature_level, self.feature_type, self.args.name)
+            path = join(self.args.root, 'dataset', self.args.model_type,
+                        feature_level, self.feature_type, self.args.name)
             Path(path).mkdir(parents=True, exist_ok=True)
 
             print('saving feature depth tuned dataset')
@@ -122,7 +123,8 @@ class Dataset:
 
         if self.args.is_logged:
             feature_level = 'feature_level_%d' % self.args.feature_depth
-            path = join(self.args.root, 'dataset', feature_level, self.feature_type, self.args.name)
+            path = join(self.args.root, 'dataset', self.args.model_type,
+                        feature_level, self.feature_type, self.args.name)
             Path(path).mkdir(parents=True, exist_ok=True)
 
             print('saving train_df, val_df, test_df')
@@ -151,7 +153,8 @@ class Dataset:
 
         if self.args.is_logged:
             feature_level = 'feature_level_%d' % self.args.feature_depth
-            path = join(self.args.root, 'dataset', feature_level, self.feature_type, self.args.name)
+            path = join(self.args.root, 'dataset', self.args.model_type,
+                        feature_level, self.feature_type, self.args.name)
             Path(path).mkdir(parents=True, exist_ok=True)
 
             print('saving accumulated %s set' % name)
