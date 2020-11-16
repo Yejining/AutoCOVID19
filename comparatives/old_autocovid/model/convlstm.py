@@ -126,8 +126,9 @@ class COVIDConvLSTM:
                     sample_divided = np.abs(sample_diff / sample_true[row][col])
                     mape_elements.append(sample_divided)
 
-            mape = np.mean(mape_elements)
-            mape_list.append(mape)
+            if len(mape_elements) != 0:
+                mape = np.mean(mape_elements)
+                mape_list.append(mape)
 
             mse = mean_squared_error(sample_true, sample_pred)
             rmse = sqrt(mse)
@@ -136,9 +137,20 @@ class COVIDConvLSTM:
         mape = np.mean(mape_list)
         rmse = np.mean(rmse_list)
 
+        prev_mape_list = []
+        for sample in range(pred.shape[0]):
+            sample_pred = pred[sample, 0, 0, ]
+            sample_true = true[sample, 0, 0, ]
+
+            sample_pred[sample_pred >= 0] += 1
+            sample_true[sample_true >= 0] += 1
+
+            temp_mape = np.mean(np.abs((sample_pred - sample_true) / sample_true))
+            prev_mape_list.append(temp_mape)
+
         print('mape: %.3lf, rmse: %.3lf' % (mape, rmse))
 
-        accuracy = {'mape': mape, 'rmse': rmse}
+        accuracy = {'mape': mape, 'prev_mape': np.mean(prev_mape_list), 'rmse': rmse}
         return accuracy
 
     def save_prediction_in_h5(self, true, prediction):
@@ -186,18 +198,18 @@ if __name__ == '__main__':
     args.train_start = '2020-01-22'
     args.train_end = '2020-03-18'
     args.val_start = '2020-03-19'
-    args.val_end = '2020-08-12'
+    args.val_end = '2020-04-07'
     args.test_start = '2020-04-08'
     args.test_end = '2020-04-27'
     args.accumulating_days = 3
 
     # ========== Feature ========== #
-    # args.feature_depth = 1
-    # args.general_depth = 1
+    args.feature_depth = 1
+    args.general_depth = 1
 
     # ========== Image ========== #
     args.size = 256
-    # args.kde_kernel_size = 17
+    args.kde_kernel_size = 9
     args.weight = 1
 
     # ========== Model ========== #
@@ -211,23 +223,22 @@ if __name__ == '__main__':
     args.conv_kernel = 3
 
     # ========== Code ========== #9
-    kde_kernel_list = [9, 13, 17]
-    feature_type_list = ['all', 'age', 'gender', 'reason', 'type']
+    setattr(args, 'feature_type', 'all')
+    setattr(args, 'feature_name', 'all')
+    loader = Dataset(args)
+    age_features = loader.age_features
+    gender_features = loader.gender_features
+    reason_features = loader.reason_features
+    type_features = loader.type_features
 
-    for kde_kernel in kde_kernel_list:
-        setattr(args, 'kde_kernel_size', kde_kernel)
-        for feature_type in feature_type_list:
-            setattr(args, 'feature_type', feature_type)
-            if feature_type == 'all':
-                setattr(args, 'feature_depth', 1)
-                setattr(args, 'general_depth', 1)
-                setattr(args, 'feature_name', 'all')
-                setattr(args, 'name', 'all')
-            else:
-                setattr(args, 'feature_depth', 2)
-                setattr(args, 'general_depth', 2)
-                setattr(args, 'feature_name', '%s_removal' % feature_type)
-                setattr(args, 'name', '%s_removal' % feature_type)
+    feature_type_list = ['age', 'gender', 'reason', 'type']
+    names = [age_features, gender_features, reason_features, type_features]
+
+    for i, feature_type in enumerate(feature_type_list):
+        setattr(args, 'feature_type', feature_type)
+        for name in names[i]:
+            setattr(args, 'feature_name', name)
+            setattr(args, 'name', name)
 
             # generate_dataset
             loader = Dataset(args)
@@ -248,3 +259,4 @@ if __name__ == '__main__':
             delattr(args, 'reason_features')
             delattr(args, 'x_max')
             delattr(args, 'y_max')
+            delattr(args, 'channel')

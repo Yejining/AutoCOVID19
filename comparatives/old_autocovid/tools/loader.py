@@ -22,6 +22,7 @@ class Dataset:
         self._set_columns()
         self._tune_feature_depth()
         self._split_dataset()
+        setattr(self.args, 'channel', self.get_channel_length())
 
     def _set_columns(self):
         print('set columns')
@@ -64,8 +65,10 @@ class Dataset:
                 self.reason_features = [self.args.feature_name]
         # remove all features of selected feature type
         elif self.args.feature_depth == 2:
-            if self.args.feature_type == 'city':
-                self.city_features = []
+            if self.args.feature_type == 'age':
+                self.age_features = []
+            elif self.args.feature_type == 'gender':
+                self.gender_features = []
             elif self.args.feature_type == 'type':
                 self.type_features = []
             elif self.args.feature_type == 'reason':
@@ -122,7 +125,8 @@ class Dataset:
     def get_channel_length(self):
         if self.args.feature_type == 'one': return 1
 
-        channel_len = len(self.city_features) + len(self.type_features) + len(self.reason_features)
+        channel_len = len(self.age_features) + len(self.gender_features) + \
+                      len(self.type_features) + len(self.reason_features)
         return channel_len
 
     def get_unique_values(self, df, column):

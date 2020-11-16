@@ -27,7 +27,7 @@ class ImageGenerator:
         for arg in vars(self.args):
             args_dict.update({arg: str(getattr(self.args, arg))})
 
-        with open(join(join(self._get_dataset_path()), 'args.json'), 'w') as f:
+        with open(join(join(self._get_path()), 'args.json'), 'w') as f:
             json.dump(args_dict, f)
 
         return dataset_list
@@ -49,7 +49,7 @@ class ImageGenerator:
 
     def save_images(self, dataset, name):
         print('save %s image to local' % name)
-        path = join(self._get_dataset_path(), 'images', name)
+        path = join(self._get_image_path(), name)
 
         x_set = dataset['x_set']
         y_set = dataset['y_set']
@@ -100,7 +100,7 @@ class ImageGenerator:
         x_set = dataset['x_set']
         y_set = dataset['y_set']
 
-        h5_path = join(self._get_dataset_path(), 'dataset', '%s.h5' % name)
+        h5_path = join(self._get_dataset_path(), '%s.h5' % name)
         with h5py.File(h5_path, 'w') as f:
             x_set = f.create_dataset('x_%s' % name, data=x_set)
             y_set = f.create_dataset('y_%s' % name, data=y_set)
@@ -163,7 +163,7 @@ class ImageGenerator:
 
     def _load_single_dataset(self, name):
         print('load %s dataset' % name)
-        h5_path = join(self._get_dataset_path(), 'dataset', '%s.h5' % name)
+        h5_path = join(self._get_dataset_path(), '%s.h5' % name)
         f = h5py.File(h5_path, 'r')
         x_set = f['x_%s' % name]
         y_set = f['y_%s' % name]
@@ -310,9 +310,19 @@ class ImageGenerator:
         array[row][col] = value
         return array
 
-    def _get_dataset_path(self):
+    def _get_path(self):
         feature_level = 'feature_level_%d' % self.args.feature_depth
         dataset_path = join(self.args.root, 'comparatives', 'old_autocovid', 'dataset',
-                          feature_level, self.args.feature_type, self.args.name)
+                            feature_level, self.args.feature_type, self.args.name)
+        Path(dataset_path).mkdir(parents=True, exist_ok=True)
+        return dataset_path
+
+    def _get_image_path(self):
+        image_path = join(self._get_path(), 'images')
+        Path(image_path).mkdir(parents=True, exist_ok=True)
+        return image_path
+
+    def _get_dataset_path(self):
+        dataset_path = join(self._get_path(), 'dataset')
         Path(dataset_path).mkdir(parents=True, exist_ok=True)
         return dataset_path
