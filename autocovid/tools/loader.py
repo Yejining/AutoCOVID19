@@ -166,6 +166,7 @@ class Dataset:
     def load_dataset(self):
         self._initialize_dataset()
         dataset = {'train': self.train_df, 'val': self.val_df, 'test': self.test_df}
+        setattr(self.args, 'channel', self.get_channel_length())
         return dataset
 
     def get_channel_length(self):

@@ -23,6 +23,8 @@ class ImageGenerator:
         self.save_image_dataset(dataset_list[1], 'val')
         self.save_image_dataset(dataset_list[2], 'test')
 
+        dataset = {'train': dataset_list[0], 'val': dataset_list[1], 'test': dataset_list[2]}
+
         if self.args.is_logged:
             feature_level = 'feature_level_%d' % self.args.feature_depth
             path = join(self.args.root, 'dataset', feature_level,
@@ -36,7 +38,7 @@ class ImageGenerator:
             with open(join(path, 'args.json'), 'w') as f:
                 json.dump(args_dict, f)
 
-        return dataset_list
+        return dataset
 
     def get_image_dataset(self, route_df):
         print('get image dataset with given dataframe')
